@@ -1,0 +1,20 @@
+{
+  "name": "fullstack-notes",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "prepare": "husky"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "oxfmt": "^0.46.0",
+    "oxlint": "^1.61.0"
+  }
+}
