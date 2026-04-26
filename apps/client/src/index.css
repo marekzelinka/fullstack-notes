@@ -23,7 +23,7 @@ ul[role="list"] li {
 
   &[data-variant="error"] {
     color: red;
-    background-color: lightsalmon;
+    background-color: lightpink;
   }
 
   &[data-variant="info"] {

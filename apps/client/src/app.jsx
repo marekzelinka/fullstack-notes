@@ -33,12 +33,18 @@ export function App() {
       content,
     };
 
-    const createdNote = await notesApi.create(noteObject);
-    setNotes((prevNotes) => prevNotes.concat(createdNote));
+    try {
+      const createdNote = await notesApi.create(noteObject);
+      setNotes((prevNotes) => prevNotes.concat(createdNote));
 
-    notify(`Added "${content}"`);
+      notify(`Added "${content}"`);
 
-    return { success: true };
+      return { success: true };
+    } catch (error) {
+      notify(error.response.data.error, { variant: "error" });
+
+      return { success: false };
+    }
   };
 
   const toggleNoteImportance = async (id) => {
