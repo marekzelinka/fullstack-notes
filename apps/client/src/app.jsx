@@ -18,11 +18,25 @@ export function App() {
       content,
       important: Math.random() < 0.5,
     };
-    const createdNote = await notesApi.create(noteObject);
 
+    const createdNote = await notesApi.create(noteObject);
     setNotes((notes) => notes.concat(createdNote));
 
     return { success: true };
+  };
+
+  const toggleNoteImportance = async (id) => {
+    const existingNote = notes.find((note) => note.id === id);
+    const noteObject = { ...existingNote, important: !existingNote.important };
+
+    try {
+      const updatedNote = await notesApi.update(id, noteObject);
+      setNotes((notes) => notes.map((note) => (note.id === id ? updatedNote : note)));
+    } catch {
+      window.alert(`Note "${existingNote.content}" was already deleted from server`);
+
+      setNotes((notes) => notes.filter((note) => note.id !== id));
+    }
   };
 
   const [showAll, toggleShowAll] = useReducer((showAll) => !showAll, true);
@@ -36,7 +50,7 @@ export function App() {
         <NoteFilters showAll={showAll} toggleShowAll={toggleShowAll} />
       </aside>
       <main>
-        <NoteList notes={notes} showAll={showAll} />
+        <NoteList notes={notes} showAll={showAll} onNoteImportanceToggle={toggleNoteImportance} />
         <AddNoteForm onSubmit={addNote} />
       </main>
     </>

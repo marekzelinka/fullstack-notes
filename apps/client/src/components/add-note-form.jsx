@@ -1,4 +1,4 @@
-const fieldStyles = { display: "flex", gap: 8 };
+const fieldStyles = { display: "flex", gap: 4 };
 
 export function AddNoteForm({ onSubmit }) {
   return (
