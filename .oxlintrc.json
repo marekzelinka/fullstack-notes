@@ -4,7 +4,10 @@
   "categories": {
     "correctness": "error"
   },
-  "rules": {},
+  "rules": {
+    "no-console": "error", // Usually allowed in servers for logging
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  },
   "env": {
     "builtin": true
   }

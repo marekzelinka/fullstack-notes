@@ -1,0 +1,12 @@
+{
+  "extends": ["../../.oxlintrc.json"],
+  "plugins": ["node"],
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "no-console": "off",
+    "unicorn/no-process-exit": "warn",
+    "unicorn/prefer-module": "error"
+  }
+}
