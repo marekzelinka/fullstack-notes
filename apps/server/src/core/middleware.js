@@ -2,9 +2,15 @@ export const middleware = {
   unknownEndpoint: (_req, res) => {
     res.status(404).send({ detail: "Unknown endpoint" });
   },
-  _MUST_BE_LAST_errorHandler: (err, _req, res, _next) => {
-    console.error(err.stack);
+  _MUST_BE_LAST_errorHandler: (error, _req, res, next) => {
+    console.error(error.message);
 
-    res.status(500).json({ error: err.message ?? "Internal Server Error" });
+    if (error.name === "CastError") {
+      res.status(400).json({ error: "Malformatted id" });
+
+      return;
+    }
+
+    next(error);
   },
 };

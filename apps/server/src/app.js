@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import mongoose from "mongoose";
 import morgan from "morgan";
 
 import { middleware } from "./core/middleware.js";
@@ -17,13 +18,28 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
 
-app.get("/api/health", (_req, res) =>
-  res.json({
-    status: "ok",
-    uptime: process.uptime(),
-    timestamp: Date.now(),
-  }),
-);
+app.get("/api/health", async (_req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      throw new Error("Mongoose not connected");
+    }
+
+    await mongoose.connection.db.admin().command({ ping: 1 });
+
+    res.status(200).json({
+      status: "ok",
+      uptime: process.uptime(),
+      timestamp: Date.now(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: "error",
+      error: error.message,
+      uptime: process.uptime(),
+      timestamp: Date.now(),
+    });
+  }
+});
 
 app.use("/api/notes", notesRouter);
 app.use("/api/*splat", middleware.unknownEndpoint);

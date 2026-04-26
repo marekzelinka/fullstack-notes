@@ -1,26 +1,10 @@
 import express from "express";
 
-let notes = [
-  {
-    id: "1",
-    content: "HTML is easy",
-    important: true,
-  },
-  {
-    id: "2",
-    content: "Browser can execute only JavaScript",
-    important: false,
-  },
-  {
-    id: "3",
-    content: "GET and POST are the most important methods of HTTP protocol",
-    important: true,
-  },
-];
+import { Note } from "../models/note.js";
 
 export const notesRouter = express.Router();
 
-notesRouter.post("/", (req, res) => {
+notesRouter.post("/", async (req, res) => {
   const { content, important } = req.body;
   if (!content) {
     res.status(400).json({ error: "Content is required" });
@@ -28,58 +12,50 @@ notesRouter.post("/", (req, res) => {
     return;
   }
 
-  const note = {
+  const note = await Note.create({
     content,
     important: important ?? false,
-    id: crypto.randomUUID(),
-  };
-  notes = notes.concat(note);
+  });
 
   res.status(201).json(note);
 });
 
-notesRouter.get("/", (_req, res) => {
+notesRouter.get("/", async (_req, res) => {
+  const notes = await Note.find();
+
   res.json(notes);
 });
 
-notesRouter.get("/:noteId", (req, res) => {
-  const existingNote = notes.find((note) => note.id === req.params.noteId);
-  if (!existingNote) {
+notesRouter.get("/:noteId", async (req, res) => {
+  const note = await Note.findById(req.params.noteId);
+  if (!note) {
     res.status(404).json({ error: "Note not found" });
 
     return;
   }
 
-  res.json(existingNote);
+  res.json(note);
 });
 
-notesRouter.patch("/:noteId", (req, res) => {
+notesRouter.patch("/:noteId", async (req, res) => {
   const { content, important } = req.body;
 
-  const existingNote = notes.find((note) => note.id === req.params.noteId);
-  if (!existingNote) {
+  const note = await Note.findByIdAndUpdate(
+    req.params.noteId,
+    { content, important },
+    { runValidators: true, returnDocument: "after" },
+  );
+  if (!note) {
     res.status(404).json({ error: "Note not found" });
 
     return;
   }
 
-  const updatedNote = {
-    ...existingNote,
-    content: content ?? existingNote.content,
-    important: important ?? existingNote.important,
-  };
-  if (!updatedNote.content) {
-    res.status(400).json({ error: "Content is required" });
-
-    return;
-  }
-  notes = notes.map((note) => (note.id === req.params.noteId ? updatedNote : note));
-
-  res.json(updatedNote);
+  res.json(note);
 });
 
-notesRouter.delete("/:noteId", (req, res) => {
-  notes = notes.filter((note) => note.id !== req.params.noteId);
+notesRouter.delete("/:noteId", async (req, res) => {
+  await Note.findByIdAndDelete(req.params.noteId);
 
   res.status(204).end();
 });
