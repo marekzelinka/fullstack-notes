@@ -61,10 +61,17 @@ export function App() {
   const deleteNote = async (id) => {
     const existingNote = notes.find((note) => note.id === id);
 
-    await notesApi.delete(id);
-    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+    try {
+      await notesApi.delete(id);
 
-    notify(`Deleted "${existingNote.content}"`, { variant: "info" });
+      notify(`Deleted "${existingNote.content}"`, { variant: "info" });
+    } catch {
+      notify(`Note "${existingNote.content}" was already removed from server`, {
+        variant: "error",
+      });
+    } finally {
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+    }
   };
 
   const [showAll, toggleShowAll] = useReducer((prevShowAll) => !prevShowAll, true);
