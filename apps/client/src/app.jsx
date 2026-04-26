@@ -4,8 +4,24 @@ import { AddNoteForm } from "./components/add-note-form.jsx";
 import { NoteFilters } from "./components/note-filters.jsx";
 import { NoteList } from "./components/note-list.jsx";
 
-export function App({ notes: initialNotes }) {
-  const [notes, setNotes] = useState(initialNotes);
+export function App() {
+  const [notes, setNotes] = useState([
+    // {
+    //   id: 1,
+    //   content: "HTML is easy",
+    //   important: true,
+    // },
+    // {
+    //   id: 2,
+    //   content: "Browser can execute only JavaScript",
+    //   important: false,
+    // },
+    // {
+    //   id: 3,
+    //   content: "GET and POST are the most important methods of HTTP protocol",
+    //   important: true,
+    // },
+  ]);
 
   const addNote = ({ content }) => {
     const newObject = {
@@ -23,12 +39,16 @@ export function App({ notes: initialNotes }) {
 
   return (
     <>
-      <h1>Fullstack Notes</h1>
+      <header>
+        <h1>Fullstack Notes</h1>
+      </header>
       <aside>
         <NoteFilters showAll={showAll} toggleShowAll={toggleShowAll} />
       </aside>
-      <NoteList notes={notes} showAll={showAll} />
-      <AddNoteForm onSubmit={addNote} />
+      <main>
+        <NoteList notes={notes} showAll={showAll} />
+        <AddNoteForm onSubmit={addNote} />
+      </main>
     </>
   );
 }

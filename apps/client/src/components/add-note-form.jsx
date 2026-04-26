@@ -1,3 +1,5 @@
+const fieldStyles = { display: "flex", gap: 8 };
+
 export function AddNoteForm({ onSubmit }) {
   return (
     <form
@@ -6,16 +8,19 @@ export function AddNoteForm({ onSubmit }) {
 
         const form = event.currentTarget;
         const formData = new FormData(form);
-        const content = formData.get("content");
 
-        const result = onSubmit({ content });
+        const result = onSubmit({
+          content: formData.get("content"),
+        });
         if (result.success) {
           form.reset();
         }
       }}
     >
-      <input type="text" name="content" required />
-      <button type="submit">Save</button>
+      <div style={fieldStyles}>
+        <input type="text" name="content" required aria-label="Note" />
+        <button type="submit">Save</button>
+      </div>
     </form>
   );
 }
