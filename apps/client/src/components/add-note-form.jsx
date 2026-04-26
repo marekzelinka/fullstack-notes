@@ -1,4 +1,4 @@
-const fieldStyles = { display: "flex", gap: 4 };
+const inlineFieldStyles = { display: "flex", gap: 4 };
 
 export function AddNoteForm({ onSubmit }) {
   return (
@@ -17,7 +17,7 @@ export function AddNoteForm({ onSubmit }) {
         }
       }}
     >
-      <div style={fieldStyles}>
+      <div style={inlineFieldStyles}>
         <input type="text" name="content" required aria-label="Note" />
         <button type="submit">Save</button>
       </div>
