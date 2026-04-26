@@ -1,33 +1,23 @@
 import { useState, useReducer } from "react";
+import { useEffect } from "react";
 
 import { AddNoteForm } from "./components/add-note-form.jsx";
 import { NoteFilters } from "./components/note-filters.jsx";
 import { NoteList } from "./components/note-list.jsx";
+import { notesApi } from "./lib/api.js";
 
 export function App() {
-  const [notes, setNotes] = useState([
-    // {
-    //   id: 1,
-    //   content: "HTML is easy",
-    //   important: true,
-    // },
-    // {
-    //   id: 2,
-    //   content: "Browser can execute only JavaScript",
-    //   important: false,
-    // },
-    // {
-    //   id: 3,
-    //   content: "GET and POST are the most important methods of HTTP protocol",
-    //   important: true,
-    // },
-  ]);
+  const [notes, setNotes] = useState([]);
+
+  useEffect(() => {
+    notesApi.getAll().then(setNotes);
+  }, []);
 
   const addNote = ({ content }) => {
     const newObject = {
       content,
       important: Math.random() < 0.5,
-      id: notes.length + 1,
+      id: String(notes.length + 1),
     };
 
     setNotes((notes) => notes.concat(newObject));
