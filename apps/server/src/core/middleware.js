@@ -9,6 +9,10 @@ export const middleware = {
       res.status(400).json({ error: "Malformatted id" });
 
       return;
+    } else if (error.name === "ValidationError") {
+      res.status(400).json({ error: error.message });
+
+      return;
     }
 
     next(error);
