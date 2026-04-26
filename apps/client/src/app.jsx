@@ -1,6 +1,4 @@
-import { useState, useReducer } from "react";
-import { useEffect } from "react";
-import { useRef } from "react";
+import { useState, useReducer, useEffect, useRef } from "react";
 
 import { AddNoteForm } from "./components/add-note-form.jsx";
 import { Alert } from "./components/alert.jsx";
@@ -37,9 +35,9 @@ export function App() {
     };
 
     const createdNote = await notesApi.create(noteObject);
-    setNotes((notes) => notes.concat(createdNote));
+    setNotes((prevNotes) => prevNotes.concat(createdNote));
 
-    notify(`Added note "${content}"`);
+    notify(`Added "${content}"`);
 
     return { success: true };
   };
@@ -50,13 +48,13 @@ export function App() {
 
     try {
       const updatedNote = await notesApi.update(id, noteObject);
-      setNotes((notes) => notes.map((note) => (note.id === id ? updatedNote : note)));
+      setNotes((prevNotes) => prevNotes.map((note) => (note.id === id ? updatedNote : note)));
     } catch {
       notify(`Note "${existingNote.content}" was already deleted from server`, {
         variant: "error",
       });
 
-      setNotes((notes) => notes.filter((note) => note.id !== id));
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
     }
   };
 
@@ -64,12 +62,12 @@ export function App() {
     const existingNote = notes.find((note) => note.id === id);
 
     await notesApi.delete(id);
-    setNotes((notes) => notes.filter((note) => note.id !== id));
+    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
 
-    notify(`Deleted note "${existingNote.content}"`, { variant: "info" });
+    notify(`Deleted "${existingNote.content}"`, { variant: "info" });
   };
 
-  const [showAll, toggleShowAll] = useReducer((showAll) => !showAll, true);
+  const [showAll, toggleShowAll] = useReducer((prevShowAll) => !prevShowAll, true);
 
   return (
     <>

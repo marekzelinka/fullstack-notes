@@ -2,11 +2,13 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["unicorn", "oxc"],
   "categories": {
-    "correctness": "error"
+    "correctness": "error",
+    "nursery": "error",
+    "suspicious": "warn",
+    "pedantic": "off"
   },
   "rules": {
-    "no-console": "error", // Usually allowed in servers for logging
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+    "eslint/no-unused-vars": "error"
   },
   "env": {
     "builtin": true
