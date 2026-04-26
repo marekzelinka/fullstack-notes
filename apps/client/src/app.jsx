@@ -13,14 +13,14 @@ export function App() {
     notesApi.getAll().then(setNotes);
   }, []);
 
-  const addNote = ({ content }) => {
-    const newObject = {
+  const addNote = async ({ content }) => {
+    const noteObject = {
       content,
       important: Math.random() < 0.5,
-      id: String(notes.length + 1),
     };
+    const createdNote = await notesApi.create(noteObject);
 
-    setNotes((notes) => notes.concat(newObject));
+    setNotes((notes) => notes.concat(createdNote));
 
     return { success: true };
   };

@@ -3,13 +3,13 @@ const fieldStyles = { display: "flex", gap: 8 };
 export function AddNoteForm({ onSubmit }) {
   return (
     <form
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         event.preventDefault();
 
         const form = event.currentTarget;
         const formData = new FormData(form);
 
-        const result = onSubmit({
+        const result = await onSubmit({
           content: formData.get("content"),
         });
         if (result.success) {
