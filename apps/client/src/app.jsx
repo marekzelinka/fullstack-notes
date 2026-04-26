@@ -4,6 +4,7 @@ import { useRef } from "react";
 
 import { AddNoteForm } from "./components/add-note-form.jsx";
 import { Alert } from "./components/alert.jsx";
+import { Footer } from "./components/footer.jsx";
 import { NoteFilters } from "./components/note-filters.jsx";
 import { NoteList } from "./components/note-list.jsx";
 import { notesApi } from "./lib/api.js";
@@ -88,6 +89,7 @@ export function App() {
         />
         <AddNoteForm onSubmit={addNote} />
       </main>
+      <Footer />
     </>
   );
 }
