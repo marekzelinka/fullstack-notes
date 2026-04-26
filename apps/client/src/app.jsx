@@ -1,12 +1,28 @@
 import { useState, useReducer } from "react";
 import { useEffect } from "react";
+import { useRef } from "react";
 
 import { AddNoteForm } from "./components/add-note-form.jsx";
+import { Alert } from "./components/alert.jsx";
 import { NoteFilters } from "./components/note-filters.jsx";
 import { NoteList } from "./components/note-list.jsx";
 import { notesApi } from "./lib/api.js";
 
 export function App() {
+  const [alert, setAlert] = useState(null);
+  const alertTimeoutIdRef = useRef();
+
+  const notify = (message, { variant = "success" } = {}) => {
+    if (alertTimeoutIdRef.current) {
+      clearTimeout(alertTimeoutIdRef.current);
+    }
+
+    setAlert({ variant, message });
+    const timeoutId = setTimeout(() => setAlert(null), 3500);
+
+    alertTimeoutIdRef.current = timeoutId;
+  };
+
   const [notes, setNotes] = useState([]);
 
   useEffect(() => {
@@ -22,6 +38,8 @@ export function App() {
     const createdNote = await notesApi.create(noteObject);
     setNotes((notes) => notes.concat(createdNote));
 
+    notify(`Added note "${content}"`);
+
     return { success: true };
   };
 
@@ -33,15 +51,21 @@ export function App() {
       const updatedNote = await notesApi.update(id, noteObject);
       setNotes((notes) => notes.map((note) => (note.id === id ? updatedNote : note)));
     } catch {
-      window.alert(`Note "${existingNote.content}" was already deleted from server`);
+      notify(`Note "${existingNote.content}" was already deleted from server`, {
+        variant: "error",
+      });
 
       setNotes((notes) => notes.filter((note) => note.id !== id));
     }
   };
 
   const deleteNote = async (id) => {
+    const existingNote = notes.find((note) => note.id === id);
+
     await notesApi.delete(id);
     setNotes((notes) => notes.filter((note) => note.id !== id));
+
+    notify(`Deleted note "${existingNote.content}"`, { variant: "info" });
   };
 
   const [showAll, toggleShowAll] = useReducer((showAll) => !showAll, true);
@@ -50,6 +74,7 @@ export function App() {
     <>
       <header>
         <h1>Fullstack Notes</h1>
+        {alert ? <Alert {...alert} /> : null}
       </header>
       <aside>
         <NoteFilters showAll={showAll} toggleShowAll={toggleShowAll} />
