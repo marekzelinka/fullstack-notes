@@ -15,6 +15,8 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(express.static("public"));
+
 app.get("/api/health", (_req, res) =>
   res.json({
     status: "ok",
@@ -24,6 +26,10 @@ app.get("/api/health", (_req, res) =>
 );
 
 app.use("/api/notes", notesRouter);
+app.use("/api/*splat", middleware.unknownEndpoint);
 
-app.use(middleware.unknownEndpoint);
+app.get("/*splat", (_req, res) => {
+  res.sendFile("public/index.html", { root: "." });
+});
+
 app.use(middleware._MUST_BE_LAST_errorHandler);

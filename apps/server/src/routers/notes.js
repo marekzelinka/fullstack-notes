@@ -23,7 +23,7 @@ export const notesRouter = express.Router();
 notesRouter.post("/", (req, res) => {
   const { content, important } = req.body;
   if (!content) {
-    res.status(400).json({ detail: "Content is required" });
+    res.status(400).json({ error: "Content is required" });
 
     return;
   }
@@ -45,7 +45,7 @@ notesRouter.get("/", (_req, res) => {
 notesRouter.get("/:noteId", (req, res) => {
   const existingNote = notes.find((note) => note.id === req.params.noteId);
   if (!existingNote) {
-    res.status(404).json({ detail: "Note not found" });
+    res.status(404).json({ error: "Note not found" });
 
     return;
   }
@@ -58,7 +58,7 @@ notesRouter.patch("/:noteId", (req, res) => {
 
   const existingNote = notes.find((note) => note.id === req.params.noteId);
   if (!existingNote) {
-    res.status(404).json({ detail: "Note not found" });
+    res.status(404).json({ error: "Note not found" });
 
     return;
   }
@@ -69,7 +69,7 @@ notesRouter.patch("/:noteId", (req, res) => {
     important: important ?? existingNote.important,
   };
   if (!updatedNote.content) {
-    res.status(400).json({ detail: "Content is required" });
+    res.status(400).json({ error: "Content is required" });
 
     return;
   }
