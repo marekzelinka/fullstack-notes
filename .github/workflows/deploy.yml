@@ -4,9 +4,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-
 jobs:
-  # Quality Job: Runs on every Push and Pull Request
   quality-gate:
     runs-on: ubuntu-latest
     steps:
@@ -20,13 +18,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Fails the build if code isn't clean
       - name: Lint and Format
         run: |
           pnpm run lint
           pnpm run fmt:check
-
-  # Job 2: Deploy (Only runs on push to main IF quality-gate passes)
   deploy:
     needs: quality-gate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
