@@ -31,7 +31,6 @@ export function App() {
   const addNote = async ({ content }) => {
     const noteObject = {
       content,
-      important: Math.random() < 0.5,
     };
 
     const createdNote = await notesApi.create(noteObject);
@@ -44,7 +43,7 @@ export function App() {
 
   const toggleNoteImportance = async (id) => {
     const existingNote = notes.find((note) => note.id === id);
-    const noteObject = { ...existingNote, important: !existingNote.important };
+    const noteObject = { important: !existingNote.important };
 
     try {
       const updatedNote = await notesApi.update(id, noteObject);
