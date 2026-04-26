@@ -39,6 +39,11 @@ export function App() {
     }
   };
 
+  const deleteNote = async (id) => {
+    await notesApi.delete(id);
+    setNotes((notes) => notes.filter((note) => note.id !== id));
+  };
+
   const [showAll, toggleShowAll] = useReducer((showAll) => !showAll, true);
 
   return (
@@ -50,7 +55,12 @@ export function App() {
         <NoteFilters showAll={showAll} toggleShowAll={toggleShowAll} />
       </aside>
       <main>
-        <NoteList notes={notes} showAll={showAll} onNoteImportanceToggle={toggleNoteImportance} />
+        <NoteList
+          notes={notes}
+          showAll={showAll}
+          onImportanceToggle={toggleNoteImportance}
+          onDelete={deleteNote}
+        />
         <AddNoteForm onSubmit={addNote} />
       </main>
     </>
