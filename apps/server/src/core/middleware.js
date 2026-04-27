@@ -1,9 +1,11 @@
+import { logger } from "./logger.js";
+
 export const middleware = {
   unknownEndpoint: (_req, res) => {
-    res.status(404).send({ detail: "Unknown endpoint" });
+    res.status(404).send({ error: "Unknown endpoint" });
   },
   _MUST_BE_LAST_errorHandler: (error, _req, res, next) => {
-    console.error(error.message);
+    logger.error(error.message);
 
     if (error.name === "CastError") {
       res.status(400).json({ error: "Malformatted id" });

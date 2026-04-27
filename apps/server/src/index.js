@@ -1,19 +1,20 @@
 import mongoose from "mongoose";
 
 import { app } from "./app.js";
-import { env } from "./core/config.js";
+import { config } from "./core/config.js";
+import { logger } from "./core/logger.js";
 
 try {
-  console.log("Connecting to MongoDB...");
-  await mongoose.connect(env.MONGODB_URI, {
+  logger.info("Connecting to MongoDB:", config.MONGODB_URI);
+  await mongoose.connect(config.MONGODB_URI, {
     serverApi: { version: "1", strict: true, deprecationErrors: true },
     family: 4,
   });
-  console.log("Connected to MongoDB");
-
-  app.listen(env.PORT, () => {
-    console.log(`Server running on port ${env.PORT}`);
-  });
+  logger.info("Connected to MongoDB");
 } catch (error) {
-  console.error("Database connection failed:", error.message);
+  logger.error("Error connection to MongoDB:", error.message);
 }
+
+app.listen(config.PORT, () => {
+  logger.info(`Server running on port ${config.PORT}`);
+});

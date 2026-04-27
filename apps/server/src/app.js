@@ -15,7 +15,6 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static("public"));
 
 app.get("/api/health", async (_req, res) => {
