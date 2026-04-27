@@ -7,6 +7,9 @@
     "dev:client": "pnpm --filter client dev",
     "dev:server": "pnpm --filter server dev",
     "dev": "pnpm run --parallel --filter \"./apps/**\" dev",
+    "test:client": "pnpm run test --project client",
+    "test:server": "pnpm run test --project server",
+    "test": "vitest",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
@@ -14,10 +17,12 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.5",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "oxfmt": "^0.46.0",
-    "oxlint": "^1.61.0"
+    "oxlint": "^1.61.0",
+    "vitest": "^4.1.5"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": "pnpm run lint",

@@ -7,10 +7,7 @@ export const notesRouter = express.Router();
 notesRouter.post("/", async (req, res) => {
   const { content, important } = req.body ?? {};
 
-  const note = await Note.create({
-    content,
-    important: important ?? false,
-  });
+  const note = await Note.create({ content, important });
 
   res.status(201).json(note);
 });
