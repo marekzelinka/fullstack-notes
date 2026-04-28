@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "helmet": "^8.1.0",

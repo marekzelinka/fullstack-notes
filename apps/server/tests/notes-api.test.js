@@ -3,13 +3,13 @@ import { beforeEach, describe, test, expect } from "vitest";
 
 import { app } from "../src/app.js";
 import { Note } from "../src/models/note.js";
-import { noteTestUtils } from "./note-test-utils.js";
+import { apiTestUtils } from "./api-test-utils.js";
 
 const api = supertest(app);
 
 describe("when there are initially some notes saved", () => {
   beforeEach(async () => {
-    await Note.insertMany(noteTestUtils.initial);
+    await Note.insertMany(apiTestUtils.initialNotes);
   });
 
   describe("addition of a new note", () => {
@@ -20,8 +20,8 @@ describe("when there are initially some notes saved", () => {
       expect(res.status).toBe(201);
       expect(res.headers["content-type"]).toMatch(/json/);
 
-      const notesAtEnd = await noteTestUtils.getSaved();
-      expect(notesAtEnd).toHaveLength(noteTestUtils.initial.length + 1);
+      const notesAtEnd = await apiTestUtils.getNotesInDb();
+      expect(notesAtEnd).toHaveLength(apiTestUtils.initialNotes.length + 1);
       const contents = notesAtEnd.map((note) => note.content);
       expect(contents).toContain(newNote.content);
     });
@@ -45,8 +45,8 @@ describe("when there are initially some notes saved", () => {
         expect(res.status).toBe(400);
         expect(res.body.error).toMatch(error);
 
-        const notesAtEnd = await noteTestUtils.getSaved();
-        expect(notesAtEnd).toHaveLength(noteTestUtils.initial.length);
+        const notesAtEnd = await apiTestUtils.getNotesInDb();
+        expect(notesAtEnd).toHaveLength(apiTestUtils.initialNotes.length);
       },
     );
   });
@@ -61,18 +61,18 @@ describe("when there are initially some notes saved", () => {
     test("all notes are returned", async () => {
       const res = await api.get("/api/notes");
       expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body).toHaveLength(noteTestUtils.initial.length);
+      expect(res.body).toHaveLength(apiTestUtils.initialNotes.length);
     });
 
     test("a specific note is within the returned notes", async () => {
       const res = await api.get("/api/notes");
       const contents = res.body.map((note) => note.content);
-      expect(contents).toContain(noteTestUtils.initial[0].content);
+      expect(contents).toContain(apiTestUtils.initialNotes[0].content);
     });
 
     describe("viewing a specific note", () => {
       test("succeeds with a valid id", async () => {
-        const notesAtStart = await noteTestUtils.getSaved();
+        const notesAtStart = await apiTestUtils.getNotesInDb();
         const noteToView = notesAtStart[0];
 
         const res = await api.get(`/api/notes/${noteToView.id}`);
@@ -82,7 +82,7 @@ describe("when there are initially some notes saved", () => {
       });
 
       test("fails with status 404 if note does not exist", async () => {
-        const validNonexistingId = await noteTestUtils.nonExistingId();
+        const validNonexistingId = await apiTestUtils.getNonExistingNoteId();
 
         const res = await api.get(`/api/notes/${validNonexistingId}`);
         expect(res.status).toBe(404);
@@ -103,7 +103,7 @@ describe("when there are initially some notes saved", () => {
 
   describe("update of a note", () => {
     test("succeeds with a valid id and update data", async () => {
-      const notesAtStart = await noteTestUtils.getSaved();
+      const notesAtStart = await apiTestUtils.getNotesInDb();
       const noteToEdit = notesAtStart[0];
 
       const res1 = await api.patch(`/api/notes/${noteToEdit.id}`).send({ important: true });
@@ -131,7 +131,7 @@ describe("when there are initially some notes saved", () => {
     });
 
     test("fails with status 404 if note does not exist", async () => {
-      const validNonexistingId = await noteTestUtils.nonExistingId();
+      const validNonexistingId = await apiTestUtils.getNonExistingNoteId();
 
       const res = await api.patch(`/api/notes/${validNonexistingId}`).send({});
       expect(res.status).toBe(404);
@@ -151,20 +151,20 @@ describe("when there are initially some notes saved", () => {
 
   describe("deletion of a note", () => {
     test("succeeds with status 204 if id is valid", async () => {
-      const notesAtStart = await noteTestUtils.getSaved();
+      const notesAtStart = await apiTestUtils.getNotesInDb();
       const noteToDelete = notesAtStart[0];
 
       const res = await api.delete(`/api/notes/${noteToDelete.id}`);
       expect(res.status).toBe(204);
 
-      const notesAtEnd = await noteTestUtils.getSaved();
-      expect(notesAtEnd).toHaveLength(noteTestUtils.initial.length - 1);
+      const notesAtEnd = await apiTestUtils.getNotesInDb();
+      expect(notesAtEnd).toHaveLength(apiTestUtils.initialNotes.length - 1);
       const ids = notesAtEnd.map((note) => note.id);
       expect(ids).not.toContain(noteToDelete.id);
     });
 
     test("succeeds with status 204 even if note does not exist", async () => {
-      const validNonexistingId = await noteTestUtils.nonExistingId();
+      const validNonexistingId = await apiTestUtils.getNonExistingNoteId();
 
       const res = await api.delete(`/api/notes/${validNonexistingId}`);
       expect(res.status).toBe(204);

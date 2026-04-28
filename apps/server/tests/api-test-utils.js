@@ -1,7 +1,8 @@
 import { Note } from "../src/models/note.js";
+import { User } from "../src/models/user.js";
 
-export const noteTestUtils = {
-  initial: [
+export const apiTestUtils = {
+  initialNotes: [
     {
       content: "HTML is easy",
       important: false,
@@ -11,16 +12,21 @@ export const noteTestUtils = {
       important: true,
     },
   ],
-  nonExistingId: async () => {
+  getNonExistingNoteId: async () => {
     const note = new Note({ content: "willremovethissoon" });
     await note.save();
     await note.deleteOne();
 
     return note._id.toString();
   },
-  getSaved: async () => {
+  getNotesInDb: async () => {
     const notes = await Note.find();
 
     return notes.map((note) => note.toJSON());
+  },
+  getUsersInDb: async () => {
+    const users = await User.find();
+
+    return users.map((user) => user.toJSON());
   },
 };
