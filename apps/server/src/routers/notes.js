@@ -5,7 +5,7 @@ import { Note } from "../models/note.js";
 export const notesRouter = express.Router();
 
 notesRouter.post("/", async (req, res) => {
-  const { content, important } = req.body ?? {};
+  const { content, important } = req.body;
 
   const note = await Note.create({ content, important });
 
@@ -30,7 +30,7 @@ notesRouter.get("/:noteId", async (req, res) => {
 });
 
 notesRouter.patch("/:noteId", async (req, res) => {
-  const { content, important } = req.body ?? {};
+  const { content, important } = req.body;
 
   const note = await Note.findByIdAndUpdate(
     req.params.noteId,

@@ -38,14 +38,17 @@ describe("when there are initially some notes saved", () => {
     test.each([
       { data: { important: true }, error: /content is required/i },
       { data: { content: "lol" }, error: /content must be at least 5 characters long/i },
-    ])("fails with status 400 with $data and $error", async ({ data, error }) => {
-      const res = await api.post("/api/notes").send(data);
-      expect(res.status).toBe(400);
-      expect(res.body.error).toMatch(error);
+    ])(
+      "fails with status 400 and correct error ($error) if data ($data) is invalid",
+      async ({ data, error }) => {
+        const res = await api.post("/api/notes").send(data);
+        expect(res.status).toBe(400);
+        expect(res.body.error).toMatch(error);
 
-      const notesAtEnd = await noteTestUtils.getSaved();
-      expect(notesAtEnd).toHaveLength(noteTestUtils.initial.length);
-    });
+        const notesAtEnd = await noteTestUtils.getSaved();
+        expect(notesAtEnd).toHaveLength(noteTestUtils.initial.length);
+      },
+    );
   });
 
   describe("viewing notes", () => {
