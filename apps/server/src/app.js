@@ -4,8 +4,8 @@ import helmet from "helmet";
 import mongoose from "mongoose";
 import morgan from "morgan";
 
-import { config } from "./core/config.js";
-import { middleware } from "./core/middleware.js";
+import { env } from "./core/config.js";
+import * as middleware from "./core/middleware.js";
 import { loginRouter } from "./routers/login.js";
 import { notesRouter } from "./routers/notes.js";
 import { usersRouter } from "./routers/users.js";
@@ -14,7 +14,7 @@ export const app = express();
 
 app.use(helmet());
 app.use(cors());
-app.use(morgan("dev", { skip: () => config.NODE_ENV === "test" }));
+app.use(morgan("dev", { skip: () => env.NODE_ENV === "test" }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -43,6 +43,7 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
+app.use(middleware.tokenExtractor);
 app.use("/api/login", loginRouter);
 app.use("/api/notes", notesRouter);
 app.use("/api/users", usersRouter);

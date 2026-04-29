@@ -1,24 +1,17 @@
 import express from "express";
 
+import * as middleware from "../core/middleware.js";
 import { Note } from "../models/note.js";
-import { User } from "../models/user.js";
 
 export const notesRouter = express.Router();
 
-notesRouter.post("/", async (req, res) => {
-  const { content, important, userId } = req.body;
-
-  const user = await User.findById(userId);
-  if (!user) {
-    res.status(400).json({ error: "userId missing" });
-
-    return;
-  }
+notesRouter.post("/", middleware.userExtractor, async (req, res) => {
+  const user = req.user;
+  const { content, important } = req.body;
 
   const note = await Note.create({ content, important, user: user._id });
 
-  user.notes = user.notes.concat(note._id);
-  await user.save();
+  await user.updateOne({ $push: { notes: note._id } });
 
   res.status(201).json(note);
 });
@@ -32,33 +25,49 @@ notesRouter.get("/", async (_req, res) => {
 notesRouter.get("/:noteId", async (req, res) => {
   const note = await Note.findById(req.params.noteId);
   if (!note) {
-    res.status(404).json({ error: "Note not found" });
-
-    return;
+    return res.status(404).json({ error: "Note not found" });
   }
 
   res.json(note);
 });
 
-notesRouter.patch("/:noteId", async (req, res) => {
+notesRouter.patch("/:noteId", middleware.userExtractor, async (req, res) => {
+  const user = req.user;
   const { content, important } = req.body;
+  const { noteId } = req.params;
 
-  const note = await Note.findByIdAndUpdate(
-    req.params.noteId,
+  const note = await Note.findOneAndUpdate(
+    { _id: noteId, user: user._id },
     { content, important },
     { runValidators: true, returnDocument: "after" },
   );
   if (!note) {
-    res.status(404).json({ error: "Note not found" });
+    const exists = await Note.findById(noteId);
+    if (!exists) {
+      return res.status(404).json({ error: "Note not found" });
+    }
 
-    return;
+    return res.status(403).json({ error: "Only the owner can update this note" });
   }
 
   res.json(note);
 });
 
-notesRouter.delete("/:noteId", async (req, res) => {
-  await Note.findByIdAndDelete(req.params.noteId);
+notesRouter.delete("/:noteId", middleware.userExtractor, async (req, res) => {
+  const user = req.user;
+  const { noteId } = req.params;
+
+  const note = await Note.findOneAndDelete({ _id: noteId, user: user._id });
+  if (!note) {
+    const exists = await Note.findById(noteId);
+    if (!exists) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    return res.status(403).json({ error: "Only the owner can delete this note" });
+  }
+
+  await user.updateOne({ $pull: { notes: note._id } });
 
   res.status(204).end();
 });

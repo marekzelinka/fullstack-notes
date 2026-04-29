@@ -7,7 +7,12 @@ const noteSchema = new mongoose.Schema({
     required: [true, "Content is required"],
   },
   important: { type: Boolean, default: false },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "A note must belong to a user"],
+    immutable: [true, "Changing the owner of a note is not allowed"],
+  },
 });
 
 noteSchema.set("toJSON", {

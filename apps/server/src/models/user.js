@@ -1,9 +1,21 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  username: { type: String, unique: true },
-  name: String,
-  passwordHash: String,
+  username: {
+    type: String,
+    required: [true, "Username is required"],
+    unique: true,
+    minlength: [3, "Username must be at least 3 characters long"],
+    match: [/^[a-zA-Z0-9]+$/, "Username can only contain letters and numbers"],
+  },
+  name: {
+    type: String,
+    trim: true,
+  },
+  passwordHash: {
+    type: String,
+    required: [true, "Password hash is required"],
+  },
   notes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Note" }],
 });
 

@@ -1,12 +1,19 @@
 import express from "express";
 
-import { security } from "../core/security.js";
+import * as security from "../core/security.js";
 import { User } from "../models/user.js";
 
 export const usersRouter = express.Router();
 
 usersRouter.post("/", async (req, res) => {
   const { username, name, password } = req.body;
+
+  // We check this here because the database only sees the hash, not the raw string
+  if (!password || password.length < 8) {
+    return res.status(400).json({
+      error: "Password must be at least 8 characters long",
+    });
+  }
 
   const passwordHash = await security.hashPassword(password);
 
