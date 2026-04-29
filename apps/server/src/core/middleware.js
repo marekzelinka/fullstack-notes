@@ -22,6 +22,16 @@ export const middleware = {
       res.status(400).json({ error: `${field} must be unique` });
 
       return;
+    } else if (error.name === "JsonWebTokenError") {
+      res.status(401).json({ error: "Invalid token" });
+
+      return;
+    } else if (error.name === "TokenExpiredError") {
+      res.status(401).json({
+        error: "Expired token",
+      });
+
+      return;
     }
 
     next(error);

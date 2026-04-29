@@ -6,6 +6,7 @@ import morgan from "morgan";
 
 import { config } from "./core/config.js";
 import { middleware } from "./core/middleware.js";
+import { loginRouter } from "./routers/login.js";
 import { notesRouter } from "./routers/notes.js";
 import { usersRouter } from "./routers/users.js";
 
@@ -42,6 +43,7 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
+app.use("/api/login", loginRouter);
 app.use("/api/notes", notesRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/*splat", middleware.unknownEndpoint);

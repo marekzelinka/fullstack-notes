@@ -8,4 +8,7 @@ export const security = {
 
     return passwordHash;
   },
+  verifyPassword: async (password, passwordHash) => {
+    return await bcrypt.compare(password, passwordHash);
+  },
 };

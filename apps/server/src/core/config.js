@@ -10,6 +10,7 @@ export const config = createEnv({
       process.env.NODE_ENV === "test"
         ? z.url().optional()
         : z.url({ protocol: /^mongodb(\+srv)?$/ }),
+    SECRET: z.string(),
   },
   runtimeEnv: process.env,
 });
