@@ -16,7 +16,6 @@ usersRouter.post("/", async (req, res) => {
   }
 
   const passwordHash = await security.hashPassword(password);
-
   const user = await User.create({ username, name, passwordHash });
 
   res.status(201).json(user);

@@ -9,7 +9,7 @@ notesRouter.post("/", middleware.userExtractor, async (req, res) => {
   const user = req.user;
   const { content, important } = req.body;
 
-  const note = await Note.create({ content, important, user: user._id });
+  const note = await Note.create({ content, important, owner: user._id });
 
   await user.updateOne({ $push: { notes: note._id } });
 
@@ -17,7 +17,7 @@ notesRouter.post("/", middleware.userExtractor, async (req, res) => {
 });
 
 notesRouter.get("/", async (_req, res) => {
-  const notes = await Note.find().populate("user", { username: 1, name: 1 });
+  const notes = await Note.find().populate("owner", { username: 1, name: 1 });
 
   res.json(notes);
 });
@@ -37,7 +37,7 @@ notesRouter.patch("/:noteId", middleware.userExtractor, async (req, res) => {
   const { noteId } = req.params;
 
   const note = await Note.findOneAndUpdate(
-    { _id: noteId, user: user._id },
+    { _id: noteId, owner: user._id },
     { content, important },
     { runValidators: true, returnDocument: "after" },
   );
@@ -57,7 +57,7 @@ notesRouter.delete("/:noteId", middleware.userExtractor, async (req, res) => {
   const user = req.user;
   const { noteId } = req.params;
 
-  const note = await Note.findOneAndDelete({ _id: noteId, user: user._id });
+  const note = await Note.findOneAndDelete({ _id: noteId, owner: user._id });
   if (!note) {
     const exists = await Note.findById(noteId);
     if (!exists) {

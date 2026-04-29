@@ -1,32 +1,47 @@
 import { Note } from "../src/models/note.js";
 import { User } from "../src/models/user.js";
 
-export const apiTestUtils = {
-  initialNotes: [
+export function getInitialNotes(userId) {
+  return [
     {
       content: "HTML is easy",
       important: false,
+      owner: userId,
     },
     {
       content: "Browser can execute only JavaScript",
       important: true,
+      owner: userId,
     },
-  ],
-  getNonExistingNoteId: async () => {
-    const note = new Note({ content: "willremovethissoon" });
-    await note.save();
-    await note.deleteOne();
+  ];
+}
 
-    return note._id.toString();
-  },
-  getNotesInDb: async () => {
-    const notes = await Note.find();
+export async function getNonExistingNoteId(userId) {
+  const note = new Note({ content: "willremovethissoon", owner: userId });
+  await note.save();
+  await note.deleteOne();
 
-    return notes.map((note) => note.toJSON());
-  },
-  getUsersInDb: async () => {
-    const users = await User.find();
+  return note._id.toString();
+}
 
-    return users.map((user) => user.toJSON());
-  },
+export async function getNotesInDb() {
+  const notes = await Note.find();
+
+  return notes.map((doc) => {
+    const note = doc.toJSON();
+
+    return { ...note, owner: note.owner.toString() };
+  });
+}
+
+export const initialUser = {
+  username: "root",
+  name: "Admin User",
+  password: "sekreeet",
 };
+
+export async function getUsersInDb() {
+  const users = await User.find();
+
+  return users.map((user) => user.toJSON());
+}

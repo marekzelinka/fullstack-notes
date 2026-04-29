@@ -15,5 +15,5 @@ loginRouter.post("/", async (req, res) => {
 
   const accessToken = security.createAccessToken({ sub: user.username });
 
-  res.status(200).send({ token: accessToken, username: user.username, name: user.name });
+  res.status(200).json({ token: accessToken, username: user.username, name: user.name });
 });

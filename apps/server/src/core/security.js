@@ -16,14 +16,14 @@ export async function verifyPassword(password, passwordHash) {
 }
 
 /**
- * Signs a new JWT access token with custom data and expiration
- * @param {Object} data - The payload to include in the token
+ * Signs a new JWT access token with custom payload and expiration
+ * @param {Object} payload - The payload to include in the token
  * @param {string|number} expiresDelta - The expiration time (e.g., '1h', '2d', or seconds)
  */
-export function createAccessToken(data, expireMinutes = undefined) {
+export function createAccessToken(payload, expireMinutes = undefined) {
   const expiresIn = `${expireMinutes ?? env.ACCESS_TOKEN_EXPIRE_MINUTES}m`;
 
-  return jwt.sign(data, env.SECRET_KEY, {
+  return jwt.sign(payload, env.SECRET_KEY, {
     expiresIn,
     algorithm: env.ALGORITHM,
   });
