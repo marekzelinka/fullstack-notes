@@ -1,13 +1,24 @@
 import express from "express";
 
 import { Note } from "../models/note.js";
+import { User } from "../models/user.js";
 
 export const notesRouter = express.Router();
 
 notesRouter.post("/", async (req, res) => {
-  const { content, important } = req.body;
+  const { content, important, userId } = req.body;
 
-  const note = await Note.create({ content, important });
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(400).json({ error: "userId missing" });
+
+    return;
+  }
+
+  const note = await Note.create({ content, important, user: user._id });
+
+  user.notes = user.notes.concat(note._id);
+  await user.save();
 
   res.status(201).json(note);
 });
