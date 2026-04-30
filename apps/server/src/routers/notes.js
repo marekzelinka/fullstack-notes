@@ -11,6 +11,8 @@ notesRouter.post("/", middleware.userExtractor, async (req, res) => {
 
   const note = await Note.create({ content, important, owner: user._id });
 
+  await note.populate("owner", { username: 1, name: 1 });
+
   await user.updateOne({ $push: { notes: note._id } });
 
   res.status(201).json(note);
@@ -42,7 +44,7 @@ notesRouter.patch("/:noteId", middleware.userExtractor, async (req, res) => {
     { _id: noteId, owner: user._id },
     { content, important },
     { runValidators: true, returnDocument: "after" },
-  );
+  ).populate("owner", { username: 1, name: 1 });
   if (!note) {
     const docExists = await Note.findById(noteId);
     if (!docExists) {
