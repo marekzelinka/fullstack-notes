@@ -35,7 +35,7 @@ describe("when there are initially some notes seeded with a owner", () => {
   });
 
   describe("addition of a new note", () => {
-    test("succeeds with valid data and contains populated owner", async () => {
+    test("succeeds with valid data", async () => {
       const newNote = { content: "Integration test note", important: true };
 
       const res = await api.post("/api/notes").set(authHeader).send(newNote);
@@ -98,12 +98,15 @@ describe("when there are initially some notes seeded with a owner", () => {
   });
 
   describe("viewing notes", () => {
-    test("all notes are returned and match seed content", async () => {
+    test("all notes are returned", async () => {
       const res = await api.get("/api/notes");
       expect(res.status).toBe(200);
       expect(res.headers["content-type"]).toMatch(/json/);
-      expect(Array.isArray(res.body)).toBe(true);
       expect(res.body).toHaveLength(userNotes.length);
+    });
+
+    test("returned notes match seed content", async () => {
+      const res = await api.get("/api/notes");
 
       const contents = res.body.map((note) => note.content);
       const expectedContent = userNotes.map((note) => note.content);
@@ -151,7 +154,7 @@ describe("when there are initially some notes seeded with a owner", () => {
   });
 
   describe("update of a note", () => {
-    test("succeeds when owned by the user and returns with the populated owner", async () => {
+    test("succeeds when owned by the user", async () => {
       const notesAtStart = await apiTestUtils.getNotesInDb();
       const noteToEdit = notesAtStart[0];
       const updatedData = { content: "Updated by owner", important: true };

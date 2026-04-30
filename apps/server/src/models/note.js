@@ -10,7 +10,7 @@ const noteSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: [true, "A note must belong to a user"],
+    required: [true, "A note must belong to a owner"],
     immutable: [true, "Changing the owner of a note is not allowed"],
   },
 });
