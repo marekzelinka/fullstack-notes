@@ -41,9 +41,6 @@ describe("when there are initially some notes seeded with a owner", () => {
       const res = await api.post("/api/notes").set(authHeader).send(newNote);
       expect(res.status).toBe(201);
       expect(res.headers["content-type"]).toMatch(/json/);
-      expect(res.body.owner).toBeTypeOf("object");
-      expect(res.body.owner.username).toBe(apiTestUtils.initialUser.username);
-      expect(res.body.owner.name).toBe(apiTestUtils.initialUser.name);
 
       const notesAtEnd = await apiTestUtils.getNotesInDb();
       expect(notesAtEnd).toHaveLength(userNotes.length + 1);
@@ -54,6 +51,15 @@ describe("when there are initially some notes seeded with a owner", () => {
       const userInDb = await User.findOne({ username: apiTestUtils.initialUser.username });
       const userNoteIds = userInDb.notes.map((id) => id.toString());
       expect(userNoteIds).toContain(res.body.id);
+    });
+
+    test("returns populated owner", async () => {
+      const newNote = { content: "Integration test note", important: true };
+
+      const res = await api.post("/api/notes").set(authHeader).send(newNote);
+      expect(res.body.owner).toBeTypeOf("object");
+      expect(res.body.owner.username).toBe(apiTestUtils.initialUser.username);
+      expect(res.body.owner.name).toBe(apiTestUtils.initialUser.name);
     });
 
     test("succeeds without important that defaults to false", async () => {
@@ -104,7 +110,7 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(contents).toEqual(expect.arrayContaining(expectedContent));
     });
 
-    test("notes are returned with owner details populated", async () => {
+    test("returns notes with populated owner", async () => {
       const res = await api.get("/api/notes");
 
       const firstNote = res.body[0];
@@ -154,7 +160,18 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(res.status).toBe(200);
       expect(res.headers["content-type"]).toMatch(/json/);
       expect(res.body.content).toBe(updatedData.content);
-      expect(res.body.owner.username).toBe(apiTestUtils.initialUser.username);
+      expect(res.body.important).toBe(updatedData.important);
+    });
+
+    test("returns populated owner", async () => {
+      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const noteToEdit = notesAtStart[0];
+      const updatedData = { content: "Updated by owner", important: true };
+
+      const res = await api.patch(`/api/notes/${noteToEdit.id}`).set(authHeader).send(updatedData);
+      expect(res.body.owner).toBeTypeOf("object");
+      expect(res.body.owner.username).toBeDefined();
+      expect(res.body.owner.passwordHash).toBeUndefined();
     });
 
     test("ignores attempts to change the immutable owner", async () => {
