@@ -23,7 +23,9 @@ notesRouter.get("/", async (_req, res) => {
 });
 
 notesRouter.get("/:noteId", async (req, res) => {
-  const note = await Note.findById(req.params.noteId);
+  const { noteId } = req.params;
+
+  const note = await Note.findById(noteId);
   if (!note) {
     return res.status(404).json({ error: "Note not found" });
   }
@@ -33,8 +35,8 @@ notesRouter.get("/:noteId", async (req, res) => {
 
 notesRouter.patch("/:noteId", middleware.userExtractor, async (req, res) => {
   const user = req.user;
-  const { content, important } = req.body;
   const { noteId } = req.params;
+  const { content, important } = req.body;
 
   const note = await Note.findOneAndUpdate(
     { _id: noteId, owner: user._id },
@@ -42,8 +44,8 @@ notesRouter.patch("/:noteId", middleware.userExtractor, async (req, res) => {
     { runValidators: true, returnDocument: "after" },
   );
   if (!note) {
-    const exists = await Note.findById(noteId);
-    if (!exists) {
+    const docExists = await Note.findById(noteId);
+    if (!docExists) {
       return res.status(404).json({ error: "Note not found" });
     }
 
@@ -59,8 +61,8 @@ notesRouter.delete("/:noteId", middleware.userExtractor, async (req, res) => {
 
   const note = await Note.findOneAndDelete({ _id: noteId, owner: user._id });
   if (!note) {
-    const exists = await Note.findById(noteId);
-    if (!exists) {
+    const docExists = await Note.findById(noteId);
+    if (!docExists) {
       return res.status(404).json({ error: "Note not found" });
     }
 

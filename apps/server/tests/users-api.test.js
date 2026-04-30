@@ -10,7 +10,7 @@ import * as apiTestUtils from "./api-test-utils.js";
 
 const api = supertest(app);
 
-describe("when there is initially an user saved with some notes", () => {
+describe("when there is initially an user seeded with some notes", () => {
   let initialFirstUserNotes;
 
   beforeEach(async () => {
@@ -27,7 +27,7 @@ describe("when there is initially an user saved with some notes", () => {
     initialFirstUserNotes = apiTestUtils.getInitialNotes(user._id);
     const notes = await Note.insertMany(initialFirstUserNotes);
 
-    // Link saved notes back to the user
+    // Link seeded notes back to the user
     await User.findByIdAndUpdate(user._id, {
       $push: { notes: { $each: notes.map((note) => note._id) } },
     });

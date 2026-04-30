@@ -9,7 +9,7 @@ import * as apiTestUtils from "./api-test-utils.js";
 
 const api = supertest(app);
 
-describe("when there are initially some notes saved", () => {
+describe("when there are initially some notes seeded with a owner", () => {
   let authHeader;
   let user;
   let userNotes;
@@ -27,7 +27,7 @@ describe("when there are initially some notes saved", () => {
     userNotes = apiTestUtils.getInitialNotes(user._id);
     const notes = await Note.insertMany(userNotes);
 
-    // Link saved notes back to the user
+    // Link seeded notes back to the user
     await User.findByIdAndUpdate(user._id, {
       $push: { notes: { $each: notes.map((note) => note._id) } },
     });
@@ -96,8 +96,8 @@ describe("when there are initially some notes saved", () => {
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body).toHaveLength(userNotes.length);
 
-      const contents = res.body.map((n) => n.content);
-      const expectedContent = userNotes.map((n) => n.content);
+      const contents = res.body.map((note) => note.content);
+      const expectedContent = userNotes.map((note) => note.content);
       expect(contents).toEqual(expect.arrayContaining(expectedContent));
     });
 
@@ -181,6 +181,7 @@ describe("when there are initially some notes saved", () => {
 
     test("fails with status 403 if trying to update someone else's note", async () => {
       const notesAtStart = await apiTestUtils.getNotesInDb();
+      const noteToEdit = notesAtStart[0];
 
       const otherUser = await User.create({ username: "hacker", passwordHash: "..." });
       const otherHeader = {
@@ -188,7 +189,7 @@ describe("when there are initially some notes saved", () => {
       };
 
       const res = await api
-        .patch(`/api/notes/${notesAtStart[0].id}`)
+        .patch(`/api/notes/${noteToEdit.id}`)
         .set(otherHeader)
         .send({ content: "Hacked!" });
       expect(res.status).toBe(403);

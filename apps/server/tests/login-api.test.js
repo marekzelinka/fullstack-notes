@@ -10,7 +10,7 @@ import * as apiTestUtils from "./api-test-utils.js";
 
 const api = supertest(app);
 
-describe("when there is initially an user saved", () => {
+describe("when there is initially an user seeded", () => {
   beforeEach(async () => {
     const passwordHash = await security.hashPassword(apiTestUtils.initialUser.password);
     await User.create({
