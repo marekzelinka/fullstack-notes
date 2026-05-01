@@ -44,3 +44,7 @@ export const notesApi = {
   update: (id, data) => api.patch(`/notes/${id}`, data),
   delete: (id) => api.delete(`/notes/${id}`),
 };
+
+export const usersApi = {
+  register: (data) => api.post("/users", data),
+};
