@@ -3,9 +3,11 @@ import { useState, useReducer, useEffect, useRef } from "react";
 import { AddNoteForm } from "./components/add-note-form.jsx";
 import { Alert } from "./components/alert.jsx";
 import { Footer } from "./components/footer.jsx";
+import { LoginForm } from "./components/login-form.jsx";
 import { NoteFilters } from "./components/note-filters.jsx";
 import { NoteList } from "./components/note-list.jsx";
-import { notesApi } from "./lib/api.js";
+import { UserCard } from "./components/user-card.jsx";
+import { loginApi, notesApi } from "./lib/api.js";
 
 export function App() {
   const [alert, setAlert] = useState(null);
@@ -22,11 +24,52 @@ export function App() {
     alertTimeoutIdRef.current = timeoutId;
   };
 
-  const [notes, setNotes] = useState([]);
+  const [user, setUser] = useState(() => {
+    const userValue = localStorage.getItem("user");
+    if (!userValue) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(userValue);
+    } catch {
+      return null;
+    }
+  });
+
+  const login = async ({ username, password }) => {
+    try {
+      const data = await loginApi.login({ username, password });
+      const loggedInUser = { username: data.username, name: data.name };
+      setUser(loggedInUser);
+
+      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      localStorage.setItem("token", data.token);
+
+      return { success: true };
+    } catch (error) {
+      notify(error.response.data.error, { variant: "error" });
+
+      return { success: false };
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+  };
+
+  const [notes, setNotes] = useState(null);
 
   useEffect(() => {
+    if (!user) {
+      return;
+    }
+
     notesApi.getAll().then(setNotes);
-  }, []);
+  }, [user]);
 
   const addNote = async ({ content }) => {
     const noteObject = {
@@ -85,19 +128,41 @@ export function App() {
     <>
       <header>
         <h1>Fullstack Notes</h1>
+        {user ? <UserCard user={user} onLogout={logout} /> : null}
         {alert ? <Alert {...alert} /> : null}
       </header>
-      <aside>
-        <NoteFilters showAll={showAll} toggleShowAll={toggleShowAll} />
-      </aside>
       <main>
-        <NoteList
-          notes={notes}
-          showAll={showAll}
-          onImportanceToggle={toggleNoteImportance}
-          onDelete={deleteNote}
-        />
-        <AddNoteForm onSubmit={addNote} />
+        {user ? (
+          <>
+            <section>
+              {notes ? (
+                notes.length ? (
+                  <>
+                    <NoteFilters showAll={showAll} toggleShowAll={toggleShowAll} />
+                    <NoteList
+                      notes={notes}
+                      showAll={showAll}
+                      onImportanceToggle={toggleNoteImportance}
+                      onDelete={deleteNote}
+                    />
+                  </>
+                ) : (
+                  <p>No notes found...</p>
+                )
+              ) : (
+                <p>Loading notes...</p>
+              )}
+            </section>
+            <section>
+              <AddNoteForm onSubmit={addNote} />
+            </section>
+          </>
+        ) : (
+          <section>
+            <h2>Login with your username</h2>
+            <LoginForm onSubmit={login} />
+          </section>
+        )}
       </main>
       <Footer />
     </>

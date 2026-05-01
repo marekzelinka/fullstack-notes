@@ -25,12 +25,17 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear token and redirect if unauthorized
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      // Keep the UI state in sync with the auth state
+      localStorage.removeItem("user");
     }
 
     return Promise.reject(error);
   },
 );
+
+export const loginApi = {
+  login: (data) => api.post("/login", data),
+};
 
 export const notesApi = {
   getAll: () => api.get("/notes"),

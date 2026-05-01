@@ -3,9 +3,21 @@ h1 {
   font-style: italic;
 }
 
+header h1 {
+  margin-bottom: 12px;
+}
+
+main {
+  margin-top: 24px;
+}
+
+footer {
+  margin-top: 24px;
+}
+
 ul[role="list"] li {
   color: gray;
-  padding-top: 5px;
+  margin-top: 5px;
   font-size: 15px;
 }
 
