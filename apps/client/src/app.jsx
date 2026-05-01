@@ -72,9 +72,7 @@ export function App() {
   }, [user]);
 
   const addNote = async ({ content }) => {
-    const noteObject = {
-      content,
-    };
+    const noteObject = { content };
 
     try {
       const createdNote = await notesApi.create(noteObject);

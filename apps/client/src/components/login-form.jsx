@@ -1,6 +1,6 @@
 import { useId } from "react";
 
-const fieldStyles = { display: "flex", gap: 8 };
+const fieldStyles = { display: "flex", gap: 8, marginBottom: 6 };
 
 export function LoginForm({ onSubmit }) {
   const formId = useId();
@@ -30,7 +30,7 @@ export function LoginForm({ onSubmit }) {
         <label htmlFor={`${formId}-password`}>Password</label>
         <input type="password" name="password" id={`${formId}-password`} required />
       </div>
-      <div style={fieldStyles}>
+      <div>
         <button type="submit">Login</button>
       </div>
     </form>

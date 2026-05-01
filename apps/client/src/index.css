@@ -1,25 +1,16 @@
-h1 {
-  color: green;
-  font-style: italic;
-}
+/* Layout Styles */
 
 header h1 {
   margin-bottom: 12px;
+  color: green;
+  font-style: italic;
 }
 
 main {
   margin-top: 24px;
 }
 
-footer {
-  margin-top: 24px;
-}
-
-ul[role="list"] li {
-  color: gray;
-  margin-top: 5px;
-  font-size: 15px;
-}
+/* Alert Component Styles */
 
 [role="status"].alert {
   font-size: 20px;

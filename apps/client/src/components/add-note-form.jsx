@@ -22,7 +22,14 @@ export function AddNoteForm({ onSubmit }) {
       }}
     >
       <div style={inlineFieldStyles}>
-        <input type="text" name="content" id={`${formId}-content`} required aria-label="Note" />
+        <input
+          type="text"
+          name="content"
+          id={`${formId}-content`}
+          required
+          minLength={5}
+          aria-label="Note"
+        />
         <button type="submit">Save</button>
       </div>
     </form>

@@ -38,9 +38,9 @@ export const loginApi = {
 };
 
 export const notesApi = {
+  create: (data) => api.post("/notes", data),
   getAll: () => api.get("/notes"),
   getById: (id) => api.get(`/notes/${id}`),
-  create: (data) => api.post("/notes", data),
   update: (id, data) => api.patch(`/notes/${id}`, data),
   delete: (id) => api.delete(`/notes/${id}`),
 };

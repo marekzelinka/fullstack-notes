@@ -1,6 +1,6 @@
 import { NoteCard } from "./note-card.jsx";
 
-const listStyles = { listStyle: "none", paddingLeft: 0 };
+const listStyles = { listStyle: "none", paddingLeft: 0, display: "grid", gap: 6 };
 
 export function NoteList({ notes, showAll, onImportanceToggle, onDelete }) {
   const filteredNotes = showAll ? notes : notes.filter((note) => note.important);

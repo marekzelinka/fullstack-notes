@@ -1,9 +1,9 @@
-const footerStyle = { color: "green", fontStyle: "italic" };
+const footerStyle = { color: "green", fontStyle: "italic", marginTop: 24 };
 
 export function Footer() {
   return (
     <footer style={footerStyle}>
-      <p>Note app, Department of Computer Science, University of Helsinki 2026</p>
+      <p>Notes app, Department of Computer Science, University of Helsinki 2026</p>
     </footer>
   );
 }

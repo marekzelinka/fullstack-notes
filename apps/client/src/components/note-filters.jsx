@@ -1,9 +1,9 @@
-const noteFiltersStyles = { display: "flex", gap: 4 };
+const rowStyles = { display: "flex", gap: 4 };
 
 export function NoteFilters({ showAll, toggleShowAll }) {
   return (
     <div role="group" aria-label="Note filter options">
-      <div style={noteFiltersStyles}>
+      <div style={rowStyles}>
         <button type="button" onClick={toggleShowAll}>
           Show {showAll ? "important" : "all"}
         </button>
