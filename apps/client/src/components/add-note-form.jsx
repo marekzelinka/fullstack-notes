@@ -1,6 +1,10 @@
+import { useId } from "react";
+
 const inlineFieldStyles = { display: "flex", gap: 4 };
 
 export function AddNoteForm({ onSubmit }) {
+  const formId = useId();
+
   return (
     <form
       onSubmit={async (event) => {
@@ -18,7 +22,7 @@ export function AddNoteForm({ onSubmit }) {
       }}
     >
       <div style={inlineFieldStyles}>
-        <input type="text" name="content" required aria-label="Note" />
+        <input type="text" name="content" id={`${formId}-content`} required aria-label="Note" />
         <button type="submit">Save</button>
       </div>
     </form>
