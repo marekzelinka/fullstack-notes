@@ -16,7 +16,7 @@ export function getInitialNotes(userId) {
   ];
 }
 
-export async function getNonExistingNoteId(userId) {
+export async function getValidNonExistingNoteId(userId) {
   const note = new Note({ content: "willremovethissoon", owner: userId });
   await note.save();
   await note.deleteOne();

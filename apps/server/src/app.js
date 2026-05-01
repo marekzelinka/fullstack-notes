@@ -45,7 +45,7 @@ app.get("/api/health", async (_req, res) => {
 
 app.use(middleware.tokenExtractor);
 app.use("/api/login", loginRouter);
-app.use("/api/notes", notesRouter);
+app.use("/api/notes", middleware.userExtractor, notesRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/*splat", middleware.unknownEndpoint);
 

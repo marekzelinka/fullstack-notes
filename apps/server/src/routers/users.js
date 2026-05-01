@@ -20,9 +20,3 @@ usersRouter.post("/", async (req, res) => {
 
   res.status(201).json(user);
 });
-
-usersRouter.get("/", async (_req, res) => {
-  const users = await User.find().populate("notes", { content: 1, important: 1 });
-
-  res.json(users);
-});

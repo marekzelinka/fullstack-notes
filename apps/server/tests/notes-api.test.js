@@ -53,15 +53,6 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(userNoteIds).toContain(res.body.id);
     });
 
-    test("returns populated owner", async () => {
-      const newNote = { content: "Integration test note", important: true };
-
-      const res = await api.post("/api/notes").set(authHeader).send(newNote);
-      expect(res.body.owner).toBeTypeOf("object");
-      expect(res.body.owner.username).toBe(apiTestUtils.initialUser.username);
-      expect(res.body.owner.name).toBe(apiTestUtils.initialUser.name);
-    });
-
     test("succeeds without important that defaults to false", async () => {
       const newNote = { content: "Integration test note" };
 
@@ -98,36 +89,34 @@ describe("when there are initially some notes seeded with a owner", () => {
   });
 
   describe("viewing notes", () => {
-    test("all notes are returned", async () => {
-      const res = await api.get("/api/notes");
+    test("returns all owned by the user", async () => {
+      const res = await api.get("/api/notes").set(authHeader);
       expect(res.status).toBe(200);
       expect(res.headers["content-type"]).toMatch(/json/);
       expect(res.body).toHaveLength(userNotes.length);
     });
 
-    test("returned notes match seed content", async () => {
-      const res = await api.get("/api/notes");
+    test("returned notes owned by user match seed content", async () => {
+      const res = await api.get("/api/notes").set(authHeader);
 
       const contents = res.body.map((note) => note.content);
       const expectedContent = userNotes.map((note) => note.content);
       expect(contents).toEqual(expect.arrayContaining(expectedContent));
     });
 
-    test("returns notes with populated owner", async () => {
+    test("fails with status 401 if auth header is missing", async () => {
       const res = await api.get("/api/notes");
-
-      const firstNote = res.body[0];
-      expect(firstNote.owner).toBeTypeOf("object");
-      expect(firstNote.owner.username).toBe(apiTestUtils.initialUser.username);
-      expect(firstNote.owner.passwordHash).toBeUndefined();
+      expect(res.status).toBe(401);
+      expect(res.headers["content-type"]).toMatch(/json/);
+      expect(res.body.error).toMatch(/invalid authentication credentials/i);
     });
 
     describe("viewing a specific note", () => {
-      test("succeeds with a valid id", async () => {
+      test("succeeds when owned by user", async () => {
         const notesAtStart = await apiTestUtils.getNotesInDb();
         const noteToView = notesAtStart[0];
 
-        const res = await api.get(`/api/notes/${noteToView.id}`);
+        const res = await api.get(`/api/notes/${noteToView.id}`).set(authHeader);
         expect(res.status).toBe(200);
         expect(res.headers["content-type"]).toMatch(/json/);
         expect(res.body).toStrictEqual(noteToView);
@@ -136,19 +125,44 @@ describe("when there are initially some notes seeded with a owner", () => {
       test("fails with status 400 if id is invalid", async () => {
         const invalidId = "5a3d5da59070081a82a3445";
 
-        const res = await api.get(`/api/notes/${invalidId}`);
+        const res = await api.get(`/api/notes/${invalidId}`).set(authHeader);
         expect(res.status).toBe(400);
         expect(res.headers["content-type"]).toMatch(/json/);
         expect(res.body.error).toMatch(/malformatted id/i);
       });
 
-      test("fails with status 404 if note does not exist", async () => {
-        const validNonexistingId = await apiTestUtils.getNonExistingNoteId(user._id);
+      test("fails with status 401 if auth header is missing", async () => {
+        const notesAtStart = await apiTestUtils.getNotesInDb();
+        const noteToView = notesAtStart[0];
 
-        const res = await api.get(`/api/notes/${validNonexistingId}`);
+        const res = await api.get(`/api/notes/${noteToView.id}`);
+        expect(res.status).toBe(401);
+        expect(res.headers["content-type"]).toMatch(/json/);
+        expect(res.body.error).toMatch(/invalid authentication credentials/i);
+      });
+
+      test("fails with status 404 if trying to view someone else's note", async () => {
+        const notesAtStart = await apiTestUtils.getNotesInDb();
+        const noteToView = notesAtStart[0];
+
+        const otherUser = await User.create({ username: "hacker", passwordHash: "..." });
+        const otherHeader = {
+          Authorization: `Bearer ${security.createAccessToken({ sub: otherUser.username })}`,
+        };
+
+        const res = await api.get(`/api/notes/${noteToView.id}`).set(otherHeader);
         expect(res.status).toBe(404);
         expect(res.headers["content-type"]).toMatch(/json/);
-        expect(res.body.error).toMatch(/note not found/i);
+        expect(res.body.error).toMatch(/note not found or unauthorized/i);
+      });
+
+      test("fails with status 404 if note does not exist", async () => {
+        const validNonexistingId = await apiTestUtils.getValidNonExistingNoteId(user._id);
+
+        const res = await api.get(`/api/notes/${validNonexistingId}`).set(authHeader);
+        expect(res.status).toBe(404);
+        expect(res.headers["content-type"]).toMatch(/json/);
+        expect(res.body.error).toMatch(/note not found or unauthorized/i);
       });
     });
   });
@@ -164,17 +178,6 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(res.headers["content-type"]).toMatch(/json/);
       expect(res.body.content).toBe(updatedData.content);
       expect(res.body.important).toBe(updatedData.important);
-    });
-
-    test("returns populated owner", async () => {
-      const notesAtStart = await apiTestUtils.getNotesInDb();
-      const noteToEdit = notesAtStart[0];
-      const updatedData = { content: "Updated by owner", important: true };
-
-      const res = await api.patch(`/api/notes/${noteToEdit.id}`).set(authHeader).send(updatedData);
-      expect(res.body.owner).toBeTypeOf("object");
-      expect(res.body.owner.username).toBeDefined();
-      expect(res.body.owner.passwordHash).toBeUndefined();
     });
 
     test("ignores attempts to change the immutable owner", async () => {
@@ -203,7 +206,18 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(res.body.error).toMatch(/malformatted id/i);
     });
 
-    test("fails with status 403 if trying to update someone else's note", async () => {
+    test("fails with status 401 if auth header is missing", async () => {
+      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const noteToEdit = notesAtStart[0];
+      const updatedData = { content: "Updated by owner", important: true };
+
+      const res = await api.patch(`/api/notes/${noteToEdit.id}`).send({ updatedData });
+      expect(res.status).toBe(401);
+      expect(res.headers["content-type"]).toMatch(/json/);
+      expect(res.body.error).toMatch(/invalid authentication credentials/i);
+    });
+
+    test("fails with status 404 if trying to update someone else's note", async () => {
       const notesAtStart = await apiTestUtils.getNotesInDb();
       const noteToEdit = notesAtStart[0];
 
@@ -216,13 +230,13 @@ describe("when there are initially some notes seeded with a owner", () => {
         .patch(`/api/notes/${noteToEdit.id}`)
         .set(otherHeader)
         .send({ content: "Hacked!" });
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(404);
       expect(res.headers["content-type"]).toMatch(/json/);
-      expect(res.body.error).toMatch(/only the owner can update this note/i);
+      expect(res.body.error).toMatch(/note not found or unauthorized/i);
     });
 
     test("fails with status 404 if note does not exist", async () => {
-      const validNonexistingId = await apiTestUtils.getNonExistingNoteId(user._id);
+      const validNonexistingId = await apiTestUtils.getValidNonExistingNoteId(user._id);
 
       const res = await api
         .patch(`/api/notes/${validNonexistingId}`)
@@ -235,7 +249,7 @@ describe("when there are initially some notes seeded with a owner", () => {
   });
 
   describe("deletion of a note", () => {
-    test("succeeds with status 204 when owned by user", async () => {
+    test("succeeds when owned by user", async () => {
       const notesAtStart = await apiTestUtils.getNotesInDb();
       const noteToDelete = notesAtStart[0];
 
@@ -262,18 +276,38 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(res.body.error).toMatch(/malformatted id/i);
     });
 
-    test("fails with status 403 if trying to delete someone else's note", async () => {
+    test("fails with status 401 if auth header is missing", async () => {
       const notesAtStart = await apiTestUtils.getNotesInDb();
+      const noteToDelete = notesAtStart[0];
+
+      const res = await api.delete(`/api/notes/${noteToDelete.id}`);
+      expect(res.status).toBe(401);
+      expect(res.headers["content-type"]).toMatch(/json/);
+      expect(res.body.error).toMatch(/invalid authentication credentials/i);
+    });
+
+    test("fails with status 404 if trying to delete someone else's note", async () => {
+      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const noteToDelete = notesAtStart[0];
 
       const otherUser = await User.create({ username: "hacker", passwordHash: "..." });
       const otherHeader = {
         Authorization: `Bearer ${security.createAccessToken({ sub: otherUser.username })}`,
       };
 
-      const res = await api.delete(`/api/notes/${notesAtStart[0].id}`).set(otherHeader);
-      expect(res.status).toBe(403);
+      const res = await api.delete(`/api/notes/${noteToDelete.id}`).set(otherHeader);
+      expect(res.status).toBe(404);
       expect(res.headers["content-type"]).toMatch(/json/);
-      expect(res.body.error).toMatch(/only the owner can delete this note/i);
+      expect(res.body.error).toMatch(/note not found or unauthorized/i);
+    });
+
+    test("fails with status 404 if note does not exist", async () => {
+      const validNonexistingId = await apiTestUtils.getValidNonExistingNoteId(user._id);
+
+      const res = await api.delete(`/api/notes/${validNonexistingId}`).set(authHeader);
+      expect(res.status).toBe(404);
+      expect(res.headers["content-type"]).toMatch(/json/);
+      expect(res.body.error).toMatch(/note not found or unauthorized/i);
     });
   });
 });

@@ -87,31 +87,4 @@ describe("when there is initially an user seeded with some notes", () => {
       expect(usersAtEnd).toHaveLength(usersAtStart.length);
     });
   });
-
-  describe("viewing users", () => {
-    test("returns users with their notes populated", async () => {
-      const res = await api.get("/api/users");
-      expect(res.status).toBe(200);
-      expect(res.headers["content-type"]).toMatch(/json/);
-      expect(Array.isArray(res.body)).toBe(true);
-
-      const seededUser = res.body[0];
-      expect(seededUser.notes).toHaveLength(initialFirstUserNotes.length);
-
-      const contents = seededUser.notes.map((note) => note.content);
-      const expectedContents = initialFirstUserNotes.map((note) => note.content);
-      expect(contents).toEqual(expect.arrayContaining(expectedContents));
-      expect(seededUser.notes[0].content).toBe(initialFirstUserNotes[0].content);
-    });
-
-    test("a specific user is within the returned users", async () => {
-      const usersAtStart = await apiTestUtils.getUsersInDb();
-      const userToView = usersAtStart[0];
-
-      const res = await api.get("/api/users");
-
-      const usernames = res.body.map((user) => user.username);
-      expect(usernames).toContain(userToView.username);
-    });
-  });
 });
