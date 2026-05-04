@@ -6,7 +6,7 @@ const noteSchema = new mongoose.Schema({
     minLength: [5, "Content must be at least 5 characters long"],
     required: [true, "Content is required"],
   },
-  important: { type: Boolean, default: false },
+  important: { type: Boolean, default: true },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

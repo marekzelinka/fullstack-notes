@@ -6,6 +6,7 @@ import { Footer } from "./components/footer.jsx";
 import { LoginForm } from "./components/login-form.jsx";
 import { NoteFilters } from "./components/note-filters.jsx";
 import { NoteList } from "./components/note-list.jsx";
+import { Togglable } from "./components/togglable.jsx";
 import { UserCard } from "./components/user-card.jsx";
 import { loginApi, notesApi } from "./lib/api.js";
 
@@ -152,13 +153,17 @@ export function App() {
               )}
             </section>
             <section>
-              <AddNoteForm onSubmit={addNote} />
+              <Togglable openButtonLabel="New note">
+                <AddNoteForm onSubmit={addNote} />
+              </Togglable>
             </section>
           </>
         ) : (
           <section>
             <h2>Login with your username</h2>
-            <LoginForm onSubmit={login} />
+            <Togglable openButtonLabel="Login">
+              <LoginForm onSubmit={login} />
+            </Togglable>
           </section>
         )}
       </main>

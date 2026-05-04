@@ -36,7 +36,7 @@ describe("when there are initially some notes seeded with a owner", () => {
 
   describe("addition of a new note", () => {
     test("succeeds with valid data", async () => {
-      const newNote = { content: "Integration test note", important: true };
+      const newNote = { content: "Integration test note", important: false };
 
       const res = await api.post("/api/notes").set(authHeader).send(newNote);
       expect(res.status).toBe(201);
@@ -53,13 +53,13 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(userNoteIds).toContain(res.body.id);
     });
 
-    test("succeeds without important that defaults to false", async () => {
+    test("succeeds without important that defaults to true", async () => {
       const newNote = { content: "Integration test note" };
 
       const res = await api.post("/api/notes").set(authHeader).send(newNote);
       expect(res.status).toBe(201);
       expect(res.headers["content-type"]).toMatch(/json/);
-      expect(res.body.important).toBe(false);
+      expect(res.body.important).toBe(true);
     });
 
     test.each([
