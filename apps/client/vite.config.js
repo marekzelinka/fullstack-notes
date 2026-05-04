@@ -18,6 +18,9 @@ export default defineConfig({
   },
   test: {
     name: "client",
+    sequence: {
+      groupOrder: 1,
+    },
     browser: {
       provider: playwright({
         launchOptions: {
