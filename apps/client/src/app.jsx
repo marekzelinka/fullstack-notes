@@ -153,7 +153,7 @@ export function App() {
               )}
             </section>
             <section>
-              <Togglable openButtonLabel="New note">
+              <Togglable openButtonLabel="Add New Note">
                 <AddNoteForm onSubmit={addNote} />
               </Togglable>
             </section>
@@ -161,7 +161,7 @@ export function App() {
         ) : (
           <section>
             <h2>Login with your username</h2>
-            <Togglable openButtonLabel="Login">
+            <Togglable openButtonLabel="User Login">
               <LoginForm onSubmit={login} />
             </Togglable>
           </section>

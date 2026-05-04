@@ -1,9 +1,10 @@
 import { useId } from "react";
 import { useReducer } from "react";
 
-const hideWhenVisibleStyles = (visible) => ({ display: visible ? "none" : undefined });
-const showWhenVisibleStyles = (visible) => ({ display: visible ? undefined : "none" });
 const contentStyles = { marginBottom: 8 };
+
+const getHideWhenVisibleStyles = (visible) => ({ display: visible ? "none" : undefined });
+const getShowWhenVisibleStyles = (visible) => ({ display: visible ? undefined : "none" });
 
 export function Togglable({ openButtonLabel = "Open", closeButtonLabel = "Close", children }) {
   const [visible, toggleVisibility] = useReducer((state) => !state, false);
@@ -12,7 +13,7 @@ export function Togglable({ openButtonLabel = "Open", closeButtonLabel = "Close"
 
   return (
     <div>
-      <div style={hideWhenVisibleStyles(visible)}>
+      <div style={getHideWhenVisibleStyles(visible)}>
         <button
           type="button"
           onClick={toggleVisibility}
@@ -22,7 +23,7 @@ export function Togglable({ openButtonLabel = "Open", closeButtonLabel = "Close"
           {openButtonLabel}
         </button>
       </div>
-      <div id={contentId} style={showWhenVisibleStyles(visible)}>
+      <div id={contentId} style={getShowWhenVisibleStyles(visible)}>
         <div style={contentStyles}>{children}</div>
         <button
           type="button"
