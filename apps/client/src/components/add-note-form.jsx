@@ -1,7 +1,5 @@
 import { useId } from "react";
 
-const inlineFieldStyles = { display: "flex", gap: 4 };
-
 export function AddNoteForm({ onSubmit }) {
   const formId = useId();
 
@@ -21,7 +19,7 @@ export function AddNoteForm({ onSubmit }) {
         }
       }}
     >
-      <div style={inlineFieldStyles}>
+      <div style={{ display: "flex", gap: 4 }}>
         <input
           type="text"
           name="content"

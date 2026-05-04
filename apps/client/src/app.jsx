@@ -63,6 +63,7 @@ export function App() {
   };
 
   const [notes, setNotes] = useState(null);
+  const noteFormRef = useRef();
 
   useEffect(() => {
     if (!user) {
@@ -80,6 +81,7 @@ export function App() {
       setNotes((prevNotes) => prevNotes.concat(createdNote));
 
       notify(`Added "${content}"`);
+      noteFormRef.current.toggleVisibility();
 
       return { success: true };
     } catch (error) {
@@ -153,7 +155,7 @@ export function App() {
               )}
             </section>
             <section>
-              <Togglable openButtonLabel="Add New Note">
+              <Togglable ref={noteFormRef} openButtonLabel="Add New Note">
                 <AddNoteForm onSubmit={addNote} />
               </Togglable>
             </section>
