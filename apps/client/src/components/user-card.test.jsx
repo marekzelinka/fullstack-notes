@@ -24,7 +24,7 @@ test("calls onLogout when the button is clicked", async () => {
 
   const screen = await render(<UserCard user={user} onLogout={onLogout} />);
 
-  await screen.getByRole("button", { name: /log out/i }).click();
+  await screen.getByRole("button", { name: /sign out/i }).click();
 
   expect(onLogout).toHaveBeenCalledTimes(1);
 });

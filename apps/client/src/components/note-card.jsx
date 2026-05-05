@@ -6,7 +6,16 @@ export function NoteCard({ note, onImportanceToggle, onDelete }) {
         <button type="button" onClick={() => onImportanceToggle(note.id)}>
           {note.important ? "Toggle not important" : "Toggle important"}
         </button>
-        <button type="button" onClick={() => onDelete(note.id)} aria-label="Delete">
+        <button
+          type="button"
+          onClick={() => {
+            const shouldDelete = window.confirm("Are you sure to delete this note?");
+            if (shouldDelete) {
+              onDelete(note.id);
+            }
+          }}
+          aria-label="Delete"
+        >
           ✖
         </button>
       </div>

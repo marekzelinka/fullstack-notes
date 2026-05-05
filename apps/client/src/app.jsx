@@ -10,6 +10,8 @@ import { Togglable } from "./components/togglable.jsx";
 import { UserCard } from "./components/user-card.jsx";
 import { loginApi, notesApi } from "./lib/api.js";
 
+const NOTIFY_DEFAULT_TIMEOUT = 3500;
+
 export function App() {
   const [alert, setAlert] = useState(null);
   const alertTimeoutIdRef = useRef();
@@ -20,7 +22,7 @@ export function App() {
     }
 
     setAlert({ variant, message });
-    const timeoutId = setTimeout(() => setAlert(null), 3500);
+    const timeoutId = setTimeout(() => setAlert(null), NOTIFY_DEFAULT_TIMEOUT);
 
     alertTimeoutIdRef.current = timeoutId;
   };
@@ -60,6 +62,9 @@ export function App() {
 
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+
+    // TODO: After adding router, we will probably not need this
+    window.location.href = "/";
   };
 
   const [notes, setNotes] = useState(null);
@@ -70,7 +75,14 @@ export function App() {
       return;
     }
 
-    notesApi.getAll().then(setNotes);
+    notesApi
+      .getAll()
+      .then(setNotes)
+      .catch((error) => {
+        notify(error.response.data.error, { variant: "error" });
+
+        setTimeout(logout, NOTIFY_DEFAULT_TIMEOUT);
+      });
   }, [user]);
 
   const addNote = async ({ content }) => {
@@ -155,15 +167,15 @@ export function App() {
               )}
             </section>
             <section>
-              <Togglable ref={noteFormRef} openButtonLabel="Add New Note">
+              <Togglable ref={noteFormRef} openButtonLabel="Add new note">
                 <AddNoteForm onSubmit={addNote} />
               </Togglable>
             </section>
           </>
         ) : (
           <section>
-            <h2>Login with your username</h2>
-            <Togglable openButtonLabel="User Login">
+            <Togglable openButtonLabel="Login to view notes">
+              <h2>Login with your username</h2>
               <LoginForm onSubmit={login} />
             </Togglable>
           </section>

@@ -28,7 +28,7 @@ export function AddNoteForm({ onSubmit }) {
           minLength={5}
           aria-label="Note"
         />
-        <button type="submit">Add New</button>
+        <button type="submit">New note</button>
       </div>
     </form>
   );

@@ -58,6 +58,7 @@ test("passes event handlers correctly to child NoteCards", async () => {
   expect(onToggle).toHaveBeenCalledWith(MOCK_NOTES[0].id);
 
   // Click the delete button inside the rendered NoteCard
+  vi.spyOn(window, "confirm").mockImplementation(() => true);
   await firstNote.getByRole("button", { name: /delete/i }).click();
 
   expect(onDelete).toHaveBeenCalledWith(MOCK_NOTES[0].id);

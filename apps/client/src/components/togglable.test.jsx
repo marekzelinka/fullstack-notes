@@ -55,6 +55,26 @@ test("toggled content can be closed", async () => {
   await expect.element(screen.getByText("togglable content")).not.toBeVisible();
 });
 
+test("allows programmatic toggling via ref", async () => {
+  const togglableRef = createRef();
+
+  const screen = await render(
+    <Togglable ref={togglableRef}>
+      <div>togglable content</div>
+    </Togglable>,
+  );
+
+  await expect.element(screen.getByText("togglable content")).not.toBeVisible();
+
+  togglableRef.current.toggleVisibility();
+
+  await expect.element(screen.getByText("togglable content")).toBeVisible();
+
+  togglableRef.current.toggleVisibility();
+
+  await expect.element(screen.getByText("togglable content")).not.toBeVisible();
+});
+
 test("shows/hides toggle buttons based on state", async () => {
   const screen = await render(
     <Togglable openButtonLabel="show..." closeButtonLabel="hide...">
@@ -103,24 +123,4 @@ test("aria-controls matches the content ID", async () => {
 
   const hideButton = screen.getByRole("button", { name: /hide/i });
   await expect.element(hideButton).toHaveAttribute("aria-controls", contentId);
-});
-
-test("allows programmatic toggling via ref", async () => {
-  const togglableRef = createRef();
-
-  const screen = await render(
-    <Togglable ref={togglableRef}>
-      <div>togglable content</div>
-    </Togglable>,
-  );
-
-  await expect.element(screen.getByText("togglable content")).not.toBeVisible();
-
-  togglableRef.current.toggleVisibility();
-
-  await expect.element(screen.getByText("togglable content")).toBeVisible();
-
-  togglableRef.current.toggleVisibility();
-
-  await expect.element(screen.getByText("togglable content")).not.toBeVisible();
 });

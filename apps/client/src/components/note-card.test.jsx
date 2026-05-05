@@ -38,7 +38,7 @@ test("shows correct button label based on importance", async () => {
   await expect.element(screen.getByRole("button", { name: /toggle important/i })).toBeVisible();
 });
 
-test("calls correct event handler when toggle button is clicked", async () => {
+test("calls event handler when toggle button is clicked and confirmed", async () => {
   const onImportanceToggle = vi.fn();
 
   const screen = await render(
@@ -50,15 +50,17 @@ test("calls correct event handler when toggle button is clicked", async () => {
   expect(onImportanceToggle).toHaveBeenCalledWith(MOCK_NOTE.id);
 });
 
-test("calls correct event handler when delete button is clicked", async () => {
+test("calls event handler when delete button is clicked", async () => {
   const onDelete = vi.fn();
 
   const screen = await render(
     <NoteCard note={MOCK_NOTE} onImportanceToggle={vi.fn()} onDelete={onDelete} />,
   );
 
+  const shouldDeleteConfirmation = vi.spyOn(window, "confirm").mockImplementation(() => true);
   await screen.getByRole("button", { name: /delete/i }).click();
 
+  expect(shouldDeleteConfirmation).toHaveBeenCalledWith("Are you sure to delete this note?");
   expect(onDelete).toHaveBeenCalledWith(MOCK_NOTE.id);
 });
 
