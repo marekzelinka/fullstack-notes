@@ -10,7 +10,7 @@ test("calls event handler on submit", async () => {
 
   await screen.getByRole("textbox", { name: /note/i }).fill("Testing a form...");
 
-  await screen.getByRole("button", { name: /add new/i }).click();
+  await screen.getByRole("button", { name: /new note/i }).click();
 
   expect(onSubmit).toHaveBeenCalled({ content: "Testing a form..." });
 });
@@ -23,7 +23,7 @@ test("resets form inputs on success", async () => {
   const noteInput = screen.getByRole("textbox", { name: /note/i });
   await noteInput.fill("Testing a form...");
 
-  await screen.getByRole("button", { name: /add new/i }).click();
+  await screen.getByRole("button", { name: /new note/i }).click();
 
   await expect.element(noteInput).toHaveValue("");
 });
@@ -37,7 +37,7 @@ test("does not reset form inputs if submission fails", async () => {
   const noteInput = screen.getByRole("textbox", { name: /note/i });
   await noteInput.fill(newNoteContent);
 
-  await screen.getByRole("button", { name: /add new/i }).click();
+  await screen.getByRole("button", { name: /new note/i }).click();
 
   await expect.element(noteInput).toHaveValue(newNoteContent);
 });
