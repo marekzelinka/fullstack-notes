@@ -4,8 +4,8 @@ import { render } from "vitest-browser-react";
 import { NoteList } from "./note-list.jsx";
 
 const MOCK_NOTES = [
-  { id: "2ae1ffd0-0d9e-4a99-88aa-3bca58a74e20", content: "Important Note", important: true },
-  { id: "73715f6c-dc07-4b05-b782-18478d6b6a65", content: "Casual Note", important: false },
+  { id: "69f4d84da6568a97bd8d333a", content: "Important Note", important: true },
+  { id: "69f8745eccd0d186f9be4704", content: "Casual Note", important: false },
 ];
 
 test("renders all notes when showAll is true", async () => {
@@ -23,6 +23,19 @@ test("renders only important notes when showAll is false", async () => {
   );
 
   await expect.element(screen.getByText(MOCK_NOTES[0].content)).toBeVisible();
+  await expect.element(screen.getByText(MOCK_NOTES[1].content)).not.toBeInTheDocument();
+});
+
+test("handles empty notes array", async () => {
+  const screen = await render(
+    <NoteList notes={MOCK_NOTES} showAll={false} onImportanceToggle={vi.fn()} onDelete={vi.fn()} />,
+  );
+
+  const list = screen.getByRole("list");
+
+  await expect.element(list).toBeEmptyDOMElement();
+  await expect.element(list.getByRole("listitem")).toHaveLength(0);
+  await expect.element(screen.getByText(MOCK_NOTES[0].content)).not.toBeInTheDocument();
   await expect.element(screen.getByText(MOCK_NOTES[1].content)).not.toBeInTheDocument();
 });
 

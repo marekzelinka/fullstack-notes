@@ -11,7 +11,7 @@ import * as apiTestUtils from "./api-test-utils.js";
 const api = supertest(app);
 
 describe("when there is initially an user seeded with some notes", () => {
-  let initialFirstUserNotes;
+  let seededUserNotes;
 
   beforeEach(async () => {
     // Important: ensure the unique index is synced for the 'already taken' test
@@ -24,8 +24,8 @@ describe("when there is initially an user seeded with some notes", () => {
       passwordHash,
     });
 
-    initialFirstUserNotes = apiTestUtils.getInitialNotes(user._id);
-    const notes = await Note.insertMany(initialFirstUserNotes);
+    seededUserNotes = apiTestUtils.getInitialNotes(user._id);
+    const notes = await Note.insertMany(seededUserNotes);
 
     // Link seeded notes back to the user
     await User.findByIdAndUpdate(user._id, {

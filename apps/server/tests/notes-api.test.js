@@ -123,7 +123,7 @@ describe("when there are initially some notes seeded with a owner", () => {
       });
 
       test("fails with status 400 if id is invalid", async () => {
-        const invalidId = "5a3d5da59070081a82a3445";
+        const invalidId = "1";
 
         const res = await api.get(`/api/notes/${invalidId}`).set(authHeader);
         expect(res.status).toBe(400);
@@ -198,7 +198,7 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("fails with status 400 if id is invalid", async () => {
-      const invalidId = "5a3d5da59070081a82a3445";
+      const invalidId = "1";
 
       const res = await api.patch(`/api/notes/${invalidId}`).set(authHeader).send({});
       expect(res.status).toBe(400);
@@ -268,7 +268,7 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("fails with status 400 if id is invalid", async () => {
-      const invalidId = "5a3d5da59070081a82a3445";
+      const invalidId = "1";
 
       const res = await api.delete(`/api/notes/${invalidId}`).set(authHeader);
       expect(res.status).toBe(400);

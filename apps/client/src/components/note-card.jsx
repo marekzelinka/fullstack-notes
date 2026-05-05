@@ -9,7 +9,7 @@ export function NoteCard({ note, onImportanceToggle, onDelete }) {
         <button
           type="button"
           onClick={() => {
-            const shouldDelete = window.confirm("Are you sure to delete this note?");
+            const shouldDelete = window.confirm(`Remove note "${note.content}"?`);
             if (shouldDelete) {
               onDelete(note.id);
             }

@@ -4,7 +4,7 @@ import { render } from "vitest-browser-react";
 import { NoteCard } from "./note-card.jsx";
 
 const MOCK_NOTE = {
-  id: "2ae1ffd0-0d9e-4a99-88aa-3bca58a74e20",
+  id: "69f4d84da6568a97bd8d333a",
   content: "Component testing is done with react-testing-library",
   important: true,
 };
@@ -27,7 +27,7 @@ test("shows correct button label based on importance", async () => {
   await toggleButton.click();
 
   // Rerender with new state (simulating parent state update)
-  screen.rerender(
+  await screen.rerender(
     <NoteCard
       note={{ ...MOCK_NOTE, important: false }}
       onImportanceToggle={vi.fn()}
@@ -38,7 +38,7 @@ test("shows correct button label based on importance", async () => {
   await expect.element(screen.getByRole("button", { name: /toggle important/i })).toBeVisible();
 });
 
-test("calls event handler when toggle button is clicked and confirmed", async () => {
+test("calls event handler when toggle button is clicked", async () => {
   const onImportanceToggle = vi.fn();
 
   const screen = await render(
@@ -50,7 +50,7 @@ test("calls event handler when toggle button is clicked and confirmed", async ()
   expect(onImportanceToggle).toHaveBeenCalledWith(MOCK_NOTE.id);
 });
 
-test("calls event handler when delete button is clicked", async () => {
+test("calls event handler when delete button is clicked and confirmed", async () => {
   const onDelete = vi.fn();
 
   const screen = await render(
@@ -60,8 +60,22 @@ test("calls event handler when delete button is clicked", async () => {
   const shouldDeleteConfirmation = vi.spyOn(window, "confirm").mockImplementation(() => true);
   await screen.getByRole("button", { name: /delete/i }).click();
 
-  expect(shouldDeleteConfirmation).toHaveBeenCalledWith("Are you sure to delete this note?");
+  expect(shouldDeleteConfirmation).toHaveBeenCalledWith(`Remove note "${MOCK_NOTE.content}"?`);
   expect(onDelete).toHaveBeenCalledWith(MOCK_NOTE.id);
+});
+
+test("does not call the event handler when delete button is clicked not confirmed", async () => {
+  const onDelete = vi.fn();
+
+  const screen = await render(
+    <NoteCard note={MOCK_NOTE} onImportanceToggle={vi.fn()} onDelete={onDelete} />,
+  );
+
+  const shouldDeleteConfirmation = vi.spyOn(window, "confirm").mockImplementation(() => false);
+  await screen.getByRole("button", { name: /delete/i }).click();
+
+  expect(shouldDeleteConfirmation).toHaveBeenCalledWith(`Remove note "${MOCK_NOTE.content}"?`);
+  expect(onDelete).toHaveBeenCalledTimes(0);
 });
 
 test("delete button has correct label", async () => {
