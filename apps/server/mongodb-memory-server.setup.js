@@ -27,7 +27,7 @@ afterEach(async () => {
 // Clean up
 afterAll(async () => {
   if (con) {
-    await con.connection.close();
+    await con.disconnect();
   }
 
   if (mongoServer) {

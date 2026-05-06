@@ -1,8 +1,11 @@
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { loadEnvFile } from "node:process";
+import { fileURLToPath } from "node:url";
 
-// Only try to load the file if it exists locally
-try {
-  loadEnvFile("./apps/server/.env.local");
-} catch {
-  // Silence error in CI where file doesn't exist
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const envPath = resolve(__dirname, ".env.local");
+
+if (existsSync(envPath)) {
+  loadEnvFile(envPath);
 }
