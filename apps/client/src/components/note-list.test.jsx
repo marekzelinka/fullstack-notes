@@ -28,7 +28,7 @@ test("renders only important notes when showAll is false", async () => {
 
 test("handles empty notes array", async () => {
   const screen = await render(
-    <NoteList notes={MOCK_NOTES} showAll={false} onImportanceToggle={vi.fn()} onDelete={vi.fn()} />,
+    <NoteList notes={[]} showAll={false} onImportanceToggle={vi.fn()} onDelete={vi.fn()} />,
   );
 
   const list = screen.getByRole("list");
