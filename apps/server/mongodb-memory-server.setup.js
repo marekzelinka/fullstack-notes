@@ -7,11 +7,7 @@ let mongoServer;
 
 // Spin up the in-memory DB
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create({
-    // binary: {
-    //   version: "7.0.3", // More stable/compatible than 8.x
-    // },
-  });
+  mongoServer = await MongoMemoryServer.create();
   con = await mongoose.connect(mongoServer.getUri());
 });
 
