@@ -7,7 +7,7 @@ FROM node:${NODE_VERSION}-slim AS base
 ENV PNPM_HOME="/pnpm" \
     PATH="$PNPM_HOME:$PATH" \
     NODE_ENV=production
-RUN npm install --global corepack@latest
+RUN npm install --global corepack@latest --force
 RUN corepack enable pnpm
 
 WORKDIR /app
