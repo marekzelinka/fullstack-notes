@@ -12,37 +12,28 @@ RUN corepack enable pnpm
 
 WORKDIR /app
 
-# 2. Fetch stage: Leverage pnpm 11 caching
-FROM base AS fetcher
-COPY pnpm-lock.yaml ./
-# Fetches dependencies based only on the lockfile for extreme speed
-RUN pnpm fetch
-
-# 3. Build stage: Client build only
-FROM fetcher AS builder
+# --- Stage 1: Build & Isolate ---
+FROM base AS build
 COPY . .
-# Install devDependencies as well to build the Vite app
-RUN pnpm install --offline --frozen-lockfile --prod=false
+
+# 1. Install all dependencies
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+# 2. Build the frontend
 RUN pnpm --filter client build
+# 3. Use 'pnpm deploy' to create a standalone server folder
+# This prunes devDeps and flattens workspace links into /prod/server
+RUN pnpm --filter server --prod deploy /prod/server --legacy
+# 4. Manually move the frontend dist into the newly isolated server
+RUN cp -r apps/client/dist /prod/server/public
 
-# 4. Production stage: Pruned and optimized
-FROM base AS runner
+# --- Stage 2: Final Production Image ---
+FROM base
+ENV NODE_ENV=production
 
-# Use pnpm deploy to isolate the server and its prod dependencies
-# Since server is pure JS, we skip any 'pnpm build' steps here
-RUN pnpm --filter server deploy /app/server --prod
+# Now we only need the /prod/server folder!
+WORKDIR /app
+COPY --from=build /prod/server ./
 
-WORKDIR /app/server
-
-# Copy source code into the isolated directory
-COPY apps/server/src ./src
-
-# Copy the built Vite static files from the builder stage
-# Assuming Vite outputs to apps/client/dist
-COPY --from=builder /app/apps/client/dist ./public
-
-# PORT should match our Fly.io deployment
 EXPOSE 3001
 
-# Start the Node-based server directly
 CMD [ "node", "src/index.js" ]
