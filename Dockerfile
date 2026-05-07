@@ -1,13 +1,14 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=25
+ARG NODE_VERSION=25.9.0
 FROM node:${NODE_VERSION}-slim AS base
 
 # Set up pnpm and production environment
 ENV PNPM_HOME="/pnpm" \
     PATH="$PNPM_HOME:$PATH" \
     NODE_ENV=production
-RUN corepack enable
+RUN npm install --global corepack@latest
+RUN corepack enable pnpm
 
 WORKDIR /app
 
