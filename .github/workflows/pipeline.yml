@@ -24,13 +24,13 @@ jobs:
           path: ~/.cache/mongodb-binaries
           key: ${{ runner.os }}-mongodb-${{ hashFiles('**/package.json') }}
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm ci
       - name: Lint and Format
         run: |
           pnpm run lint
           pnpm run fmt:check
       - name: Install Playwright Browsers
-        run: pnpx playwright install --with-deps chromium
+        run: pnpx playwright install chromium
       - name: Run Tests
         run: pnpm run test
         env:
