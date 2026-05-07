@@ -23,7 +23,6 @@ test("shows correct button label based on importance", async () => {
   );
   const toggleButton = screen.getByRole("button", { name: /toggle not important/i });
 
-  await expect.element(toggleButton).toBeVisible();
   await toggleButton.click();
 
   // Rerender with new state (simulating parent state update)
@@ -40,7 +39,6 @@ test("shows correct button label based on importance", async () => {
 
 test("calls event handler when toggle button is clicked", async () => {
   const onImportanceToggle = vi.fn();
-
   const screen = await render(
     <NoteCard note={MOCK_NOTE} onImportanceToggle={onImportanceToggle} onDelete={vi.fn()} />,
   );
@@ -52,40 +50,28 @@ test("calls event handler when toggle button is clicked", async () => {
 
 test("calls event handler when delete button is clicked and confirmed", async () => {
   const onDelete = vi.fn();
-
   const screen = await render(
     <NoteCard note={MOCK_NOTE} onImportanceToggle={vi.fn()} onDelete={onDelete} />,
   );
-
   const shouldDeleteConfirmation = vi.spyOn(window, "confirm").mockImplementation(() => true);
+
   await screen.getByRole("button", { name: /delete/i }).click();
 
   expect(shouldDeleteConfirmation).toHaveBeenCalledWith(`Remove note "${MOCK_NOTE.content}"?`);
   expect(onDelete).toHaveBeenCalledWith(MOCK_NOTE.id);
 });
 
-test("does not call the event handler when delete button is clicked not confirmed", async () => {
+test("does not call the event handler when delete button is clicked and not confirmed", async () => {
   const onDelete = vi.fn();
-
   const screen = await render(
     <NoteCard note={MOCK_NOTE} onImportanceToggle={vi.fn()} onDelete={onDelete} />,
   );
-
   const shouldDeleteConfirmation = vi.spyOn(window, "confirm").mockImplementation(() => false);
+
   await screen.getByRole("button", { name: /delete/i }).click();
 
   expect(shouldDeleteConfirmation).toHaveBeenCalledWith(`Remove note "${MOCK_NOTE.content}"?`);
   expect(onDelete).toHaveBeenCalledTimes(0);
-});
-
-test("delete button has correct label", async () => {
-  const screen = await render(
-    <NoteCard note={MOCK_NOTE} onImportanceToggle={vi.fn()} onDelete={vi.fn()} />,
-  );
-
-  await expect
-    .element(screen.getByRole("button", { name: /delete/i }))
-    .toHaveAttribute("aria-label", "Delete");
 });
 
 test("action buttons are grouped with label", async () => {

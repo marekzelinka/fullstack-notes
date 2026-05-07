@@ -6,12 +6,10 @@ import { LoginForm } from "./login-form.jsx";
 test("calls event handler on submit", async () => {
   const testCredentials = { username: "testuser123", password: "tester123456" };
   const onSubmit = vi.fn(() => ({ success: true }));
-
   const screen = await render(<LoginForm onSubmit={onSubmit} />);
 
   await screen.getByLabelText(/username/i).fill(testCredentials.username);
   await screen.getByLabelText(/password/i).fill(testCredentials.password);
-
   await screen.getByRole("button", { name: /login/i }).click();
 
   expect(onSubmit).toHaveBeenCalled(testCredentials);
@@ -20,14 +18,12 @@ test("calls event handler on submit", async () => {
 test("resets the form inputs on success", async () => {
   const testCredentials = { username: "testuser123", password: "tester123456" };
   const onSubmit = vi.fn(() => ({ success: true }));
-
   const screen = await render(<LoginForm onSubmit={onSubmit} />);
-
   const usernameInput = screen.getByLabelText(/username/i);
-  await usernameInput.fill(testCredentials.username);
   const passwordInput = screen.getByLabelText(/password/i);
-  await passwordInput.fill(testCredentials.password);
 
+  await usernameInput.fill(testCredentials.username);
+  await passwordInput.fill(testCredentials.password);
   await screen.getByRole("button", { name: /login/i }).click();
 
   await expect.element(usernameInput).toHaveValue("");
@@ -37,14 +33,12 @@ test("resets the form inputs on success", async () => {
 test("does not reset the form inputs on success", async () => {
   const testCredentials = { username: "testuser123", password: "tester123456" };
   const onSubmit = vi.fn(() => ({ success: false }));
-
   const screen = await render(<LoginForm onSubmit={onSubmit} />);
-
   const usernameInput = screen.getByLabelText(/username/i);
-  await usernameInput.fill(testCredentials.username);
   const passwordInput = screen.getByLabelText(/password/i);
-  await passwordInput.fill(testCredentials.password);
 
+  await usernameInput.fill(testCredentials.username);
+  await passwordInput.fill(testCredentials.password);
   await screen.getByRole("button", { name: /login/i }).click();
 
   await expect.element(usernameInput).toHaveValue(testCredentials.username);

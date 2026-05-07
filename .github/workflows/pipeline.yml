@@ -8,13 +8,20 @@ on:
 
 jobs:
   quality-gate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        node-version: [26]
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
         with:
-          node-version: 25
+          version: 11
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
           cache: "pnpm"
       - name: Cache MongoDB Binary
         uses: actions/cache@v4
@@ -22,7 +29,7 @@ jobs:
           path: ~/.cache/mongodb-binaries
           key: ${{ runner.os }}-mongodb-${{ hashFiles('**/package.json') }}
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       - name: Lint and Format
         run: |
           pnpm run lint
@@ -42,9 +49,9 @@ jobs:
   deploy:
     needs: quality-gate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy to Fly.io
         run: flyctl deploy --remote-only

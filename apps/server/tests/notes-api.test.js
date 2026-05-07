@@ -62,12 +62,17 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(res.body.important).toBe(true);
     });
 
-    test.each([
-      { data: { important: true }, error: /content is required/i },
-      { data: { content: "lol" }, error: /content must be at least 5 characters long/i },
+    test.for([
+      [{ important: true }, /content is required/i],
+      [{ content: "lol" }, /content must be at least 5 characters long/i],
     ])(
-      "fails with status 400 and correct error ($error) if data ($data) is invalid",
-      async ({ data, error }) => {
+      "fails with status 400 when data (%i) is invalid, returning error (%i)",
+      async (
+        [data, error],
+        {
+          expect, // oxlint-disable-line no-shadow
+        },
+      ) => {
         const res = await api.post("/api/notes").set(authHeader).send(data);
         expect(res.status).toBe(400);
         expect(res.headers["content-type"]).toMatch(/json/);

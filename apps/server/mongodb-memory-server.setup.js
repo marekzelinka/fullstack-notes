@@ -16,6 +16,7 @@ afterEach(async () => {
   const collections = mongoose.connection.collections;
 
   for (const key in collections) {
+    // oxlint-disable-next-line no-await-in-loop
     await collections[key].deleteMany();
   }
 });

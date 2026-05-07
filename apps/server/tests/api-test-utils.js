@@ -29,8 +29,9 @@ export async function getNotesInDb() {
 
   return notes.map((doc) => {
     const note = doc.toJSON();
+    note.owner = note.owner.toString();
 
-    return { ...note, owner: note.owner.toString() };
+    return note;
   });
 }
 

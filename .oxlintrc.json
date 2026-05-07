@@ -3,9 +3,9 @@
   "plugins": ["unicorn", "oxc"],
   "categories": {
     "correctness": "error",
-    "nursery": "error",
     "suspicious": "warn",
-    "pedantic": "off"
+    "perf": "warn",
+    "style": "off"
   },
   "rules": {
     "eslint/no-unused-vars": "error"

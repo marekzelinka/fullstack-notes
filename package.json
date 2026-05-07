@@ -19,14 +19,14 @@
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.5",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
-    "oxfmt": "^0.47.0",
-    "oxlint": "^1.62.0",
+    "lint-staged": "^17.0.2",
+    "oxfmt": "^0.48.0",
+    "oxlint": "^1.63.0",
     "vitest": "^4.1.5"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": "pnpm run lint",
     "*": "oxfmt --no-error-on-unmatched-pattern"
   },
-  "packageManager": "pnpm@11.0.4"
+  "packageManager": "pnpm@11.0.8+sha512.4c4097e1dd2d42372c4e7fa5a791ff28fc75a484c7ac192e64b1df0fdef17594ba982f9b4fed9adfb3c757846f565b799b2763fb3733d1de1bcb82cf46684912"
 }

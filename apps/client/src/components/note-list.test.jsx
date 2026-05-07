@@ -53,7 +53,6 @@ test("uses correct list semantics for accessibility", async () => {
 test("passes event handlers correctly to child NoteCards", async () => {
   const onToggle = vi.fn();
   const onDelete = vi.fn();
-
   const screen = await render(
     <NoteList
       notes={[MOCK_NOTES[0]]}

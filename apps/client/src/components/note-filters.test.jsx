@@ -3,7 +3,7 @@ import { render } from "vitest-browser-react";
 
 import { NoteFilters } from "./note-filters.jsx";
 
-test("renders with 'Show important' when showAll is true", async () => {
+test("renders with 'Show important' when showAll", async () => {
   const screen = await render(<NoteFilters showAll={true} toggleShowAll={vi.fn()} />);
 
   await expect.element(screen.getByRole("button", { name: /show important/i })).toBeVisible();
@@ -24,9 +24,8 @@ test("calls event handler when the button is clicked", async () => {
   expect(toggleShowAll).toHaveBeenCalledTimes(1);
 });
 
-test("has correct grouping for accessibility", async () => {
+test("has correct grouping for a11y", async () => {
   const screen = await render(<NoteFilters showAll={true} toggleShowAll={vi.fn()} />);
 
-  // Verifies the div acts as a group with the specific label
   await expect.element(screen.getByRole("group", { name: /note filter options/i })).toBeVisible();
 });
