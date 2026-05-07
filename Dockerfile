@@ -34,6 +34,9 @@ RUN pnpm --filter server deploy /app/server --prod
 
 WORKDIR /app/server
 
+# Copy source code into the isolated directory
+COPY apps/server/src ./src
+
 # Copy the built Vite static files from the builder stage
 # Assuming Vite outputs to apps/client/dist
 COPY --from=builder /app/apps/client/dist ./public
