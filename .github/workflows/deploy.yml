@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD
 
 on:
   push:
@@ -10,21 +10,14 @@ jobs:
   quality-gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Install pnpm
-        uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
-      - name: Install node
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 26
+          node-version: 25
           cache: "pnpm"
-      - name: Cache MongoDB Binary
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/mongodb-binaries
-          key: ${{ runner.os }}-mongodb-${{ hashFiles('**/package.json') }}
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install --frozen-lockfile
       - name: Lint and Format
         run: |
           pnpm run lint
@@ -32,21 +25,17 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm --filter client exec playwright install --with-deps chromium
       - name: Run Tests
-        run: pnpm run test
+        run: pnpm vitest run
         env:
-          # Note: mongodb-memory-server usually doesn't need MONGODB_URI
-          # as it generates its own, but keeping for your app logic
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          # Force the memory server to use the cached path
-          MONGOMS_DOWNLOAD_DIR: ~/.cache/mongodb-binaries
 
   deploy:
     needs: quality-gate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy to Fly.io
         run: flyctl deploy --remote-only
