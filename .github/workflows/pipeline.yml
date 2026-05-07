@@ -30,7 +30,7 @@ jobs:
           pnpm run lint
           pnpm run fmt:check
       - name: Install Playwright Browsers
-        run: pnpx playwright playwright install --with-deps --no-shell chromium
+        run: pnpx playwright install --with-deps chromium
       - name: Run Tests
         run: pnpm run test
         env:

@@ -7,9 +7,7 @@
     "perf": "warn",
     "style": "off"
   },
-  "rules": {
-    "eslint/no-unused-vars": "error"
-  },
+  "rules": {},
   "env": {
     "builtin": true
   }
