@@ -69,9 +69,6 @@ importers:
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
-      playwright:
-        specifier: ^1.59.1
-        version: 1.59.1
       vite:
         specifier: ^8.0.10
         version: 8.0.10(@types/node@25.6.0)(yaml@2.8.4)
