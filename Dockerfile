@@ -12,13 +12,13 @@ RUN corepack enable
 WORKDIR /app
 
 # Fetch dependencies based on lockfile only (High cache hit rate)
-FROM base AS fetcher
+# FROM base AS fetcher
 
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch
+# COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+# RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch
 
 # Build the Frontend (Vite)
-FROM fetcher AS build-client
+FROM base AS build-client
 
 COPY . .
 # Install all deps (including dev) using the cached store
@@ -27,18 +27,19 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm --filter client run build
 
 # Prepare isolated Server production environment
-FROM fetcher AS server-deploy
+FROM base AS server-deploy
 
 COPY . .
 # Use pnpm deploy to create a standalone directory for the server
 # This resolves workspace links and copies necessary code/deps into /out
-RUN pnpm --filter server --prod deploy /out
+RUN pnpm --filter server --prod deploy /out --legacy
 
 # Final Production Image
 FROM base AS runner
 
 WORKDIR /app
 USER node
+
 # Copy the standalone server from the deploy stage
 COPY --from=server-deploy --chown=node:node /out .
 # Copy the frontend build into the server's public directory
