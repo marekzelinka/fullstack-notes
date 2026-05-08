@@ -11,18 +11,12 @@ RUN corepack enable
 
 WORKDIR /app
 
-# Fetch dependencies based on lockfile only (High cache hit rate)
-# FROM base AS fetcher
-
-# COPY pnpm-lock.yaml pnpm-workspace.yaml ./
-# RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch
-
 # Build the Frontend (Vite)
 FROM base AS build-client
 
 COPY . .
 # Install all deps (including dev) using the cached store
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --offline
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 # Build React app - output usually goes to apps/client/dist
 RUN pnpm --filter client run build
 
