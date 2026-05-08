@@ -26,7 +26,7 @@ FROM base AS server-deploy
 COPY . .
 # Use pnpm deploy to create a standalone directory for the server
 # This resolves workspace links and copies necessary code/deps into /out
-RUN pnpm --filter server --prod deploy /out --legacy
+RUN pnpm --filter server --prod deploy /out --legacy --ignore-scripts
 
 # Final Production Image
 FROM base AS runner
