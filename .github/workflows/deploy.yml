@@ -24,7 +24,7 @@ jobs:
           path: ~/.cache/mongodb-binaries
           key: ${{ runner.os }}-mongodb-${{ hashFiles('**/package.json') }}
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install
       - name: Lint and Format
         run: |
           pnpm run lint
