@@ -1,15 +1,14 @@
 {
-  "name": "fullstack-notes",
-  "version": "0.0.0",
-  "private": true,
   "type": "module",
   "scripts": {
+    "dev": "pnpm run --parallel --filter \"./apps/**\" dev",
     "dev:client": "pnpm --filter client dev",
     "dev:server": "pnpm --filter server dev",
-    "dev": "pnpm run --parallel --filter \"./apps/**\" dev",
+    "test": "vitest",
     "test:client": "pnpm run test --project client",
     "test:server": "pnpm run test --project server",
-    "test": "vitest",
+    "e2e": "pnpm --filter e2e test",
+    "e2e:report": "pnpm --filter e2e test:report",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
@@ -19,7 +18,7 @@
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.5",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.2",
+    "lint-staged": "^17.0.3",
     "oxfmt": "^0.48.0",
     "oxlint": "^1.63.0",
     "vitest": "^4.1.5"

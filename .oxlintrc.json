@@ -5,9 +5,13 @@
     "correctness": "error",
     "suspicious": "warn",
     "perf": "warn",
-    "style": "off"
+    "style": "off",
+    "nursery": "error"
   },
-  "rules": {},
+  "rules": {
+    "no-console": "error",
+    "no-shadow": "off"
+  },
   "env": {
     "builtin": true
   }

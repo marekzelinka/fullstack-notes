@@ -1,13 +1,13 @@
 import { User } from "../models/user.js";
-import * as logger from "./logger.js";
-import * as security from "./security.js";
+import { logError } from "./logger.js";
+import { verifyToken } from "./security.js";
 
 export function unknownEndpoint(_req, res) {
   res.status(404).send({ error: "Unknown endpoint" });
 }
 
-export function _MUST_BE_LAST_errorHandler(error, _req, res, next) {
-  logger.error(error.message);
+export function errorHandler(error, _req, res, next) {
+  logError(error.message);
 
   if (error.name === "CastError") {
     return res.status(400).json({ error: "Malformatted id" });
@@ -39,7 +39,7 @@ export function tokenExtractor(req, _res, next) {
 }
 
 export async function userExtractor(req, res, next) {
-  const username = security.verifyToken(req.token);
+  const username = verifyToken(req.token);
 
   const user = await User.findOne({ username });
   if (!user) {

@@ -1,26 +1,24 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Dependencies
+node_modules
+.pnpm-debug.log
+
+# Build outputs
+dist
+build
+.next
+
+# Environment variables & Secrets
+.env
+.env.local
+.env.test
 
 # Testing
-/coverage/
-**/.vitest-result.json
+coverage
+.vitest.result.json
 
-node_modules
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# System
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+
+# Docker/Fly
+.fly

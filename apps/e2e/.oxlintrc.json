@@ -1,0 +1,14 @@
+{
+  "extends": ["../../.oxlintrc.json"],
+  "plugins": ["node"],
+  "jsPlugins": ["eslint-plugin-playwright"],
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "playwright/missing-playwright-await": "error",
+    "playwright/no-focused-test": "error",
+    "playwright/no-skipped-test": "warn",
+    "playwright/no-force-option": "warn"
+  }
+}

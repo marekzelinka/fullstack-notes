@@ -1,3 +1,5 @@
+import { uptime } from "node:process";
+
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
@@ -5,7 +7,7 @@ import mongoose from "mongoose";
 import morgan from "morgan";
 
 import { env } from "./core/config.js";
-import * as middleware from "./core/middleware.js";
+import { tokenExtractor, userExtractor, unknownEndpoint, errorHandler } from "./core/middleware.js";
 import { loginRouter } from "./routers/login.js";
 import { notesRouter } from "./routers/notes.js";
 import { usersRouter } from "./routers/users.js";
@@ -21,36 +23,45 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 app.get("/api/health", async (_req, res) => {
+  const dbStatus = mongoose.connection.readyState;
+  const isDbConnected = dbStatus === mongoose.ConnectionStates.connected;
+
+  const healthInfo = {
+    status: "ok",
+    uptime: `${Math.floor(uptime())}s`,
+    timestamp: new Date().toISOString(),
+    services: {
+      database: isDbConnected ? "healthy" : "unhealthy",
+    },
+  };
+
   try {
-    if (mongoose.connection.readyState !== 1) {
-      throw new Error("Mongoose not connected");
+    if (!isDbConnected) {
+      throw new Error("Database not connected");
     }
 
-    await mongoose.connection.db.admin().command({ ping: 1 });
+    // Run the admin ping command to verify the DB is responsive
+    await mongoose.connection.db.admin().ping();
 
-    res.status(200).json({
-      status: "ok",
-      uptime: process.uptime(),
-      timestamp: Date.now(),
-    });
+    res.status(200).json(healthInfo);
   } catch (error) {
-    res.status(503).json({
-      status: "error",
-      error: error.message,
-      uptime: process.uptime(),
-      timestamp: Date.now(),
-    });
+    healthInfo.status = "error";
+    healthInfo.services.database = "unhealthy";
+    healthInfo.error = error.message;
+
+    // Return 503 Service Unavailable so Fly.io knows the instance is failing
+    res.status(503).json(healthInfo);
   }
 });
 
-app.use(middleware.tokenExtractor);
-app.use("/api/login", loginRouter);
-app.use("/api/notes", middleware.userExtractor, notesRouter);
+app.use(tokenExtractor);
 app.use("/api/users", usersRouter);
-app.use("/api/*splat", middleware.unknownEndpoint);
+app.use("/api/login", loginRouter);
+app.use("/api/notes", userExtractor, notesRouter);
+app.use("/api/*splat", unknownEndpoint);
 
 app.get("/*splat", (_req, res) => {
   res.sendFile("public/index.html", { root: "." });
 });
 
-app.use(middleware._MUST_BE_LAST_errorHandler);
+app.use(errorHandler);

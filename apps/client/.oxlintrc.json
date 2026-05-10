@@ -1,6 +1,7 @@
 {
   "extends": ["../../.oxlintrc.json"],
   "plugins": ["react", "jsx-a11y"],
+  "jsPlugins": ["eslint-plugin-react-compiler"],
   "env": {
     "browser": true
   },
@@ -11,7 +12,7 @@
     "react/react-in-jsx-scope": "off",
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "error",
-    "react/no-array-index-key": "off",
+    "react-compiler/react-compiler": "error",
     "jsx-a11y/alt-text": "warn",
     "jsx-a11y/anchor-has-content": "warn"
   }

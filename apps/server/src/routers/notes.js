@@ -23,11 +23,11 @@ notesRouter.get("/", async (req, res) => {
   res.json(notes);
 });
 
-notesRouter.get("/:noteId", async (req, res) => {
+notesRouter.get("/:id", async (req, res) => {
   const user = req.user;
-  const { noteId } = req.params;
+  const { id } = req.params;
 
-  const note = await Note.findOne({ _id: noteId, owner: user._id });
+  const note = await Note.findOne({ _id: id, owner: user._id });
   if (!note) {
     return res.status(404).json({ error: "Note not found or unauthorized" });
   }
@@ -35,16 +35,16 @@ notesRouter.get("/:noteId", async (req, res) => {
   res.json(note);
 });
 
-notesRouter.patch("/:noteId", async (req, res) => {
+notesRouter.patch("/:id", async (req, res) => {
   const user = req.user;
-  const { noteId } = req.params;
+  const { id } = req.params;
   const { content, important } = req.body;
 
   const note = await Note.findOneAndUpdate(
-    { _id: noteId, owner: user._id },
+    { _id: id, owner: user._id },
     { content, important },
     { runValidators: true, returnDocument: "after" },
-  ).populate("owner", { username: 1, name: 1 });
+  );
   if (!note) {
     return res.status(404).json({ error: "Note not found or unauthorized" });
   }
@@ -52,16 +52,16 @@ notesRouter.patch("/:noteId", async (req, res) => {
   res.json(note);
 });
 
-notesRouter.delete("/:noteId", async (req, res) => {
+notesRouter.delete("/:id", async (req, res) => {
   const user = req.user;
-  const { noteId } = req.params;
+  const { id } = req.params;
 
-  const note = await Note.findOneAndDelete({ _id: noteId, owner: user._id });
+  const note = await Note.findOneAndDelete({ _id: id, owner: user._id });
   if (!note) {
     return res.status(404).json({ error: "Note not found or unauthorized" });
   }
 
-  await user.updateOne({ $pull: { notes: note._id } });
+  await user.updateOne({ $pull: { notes: id } });
 
   res.status(204).end();
 });

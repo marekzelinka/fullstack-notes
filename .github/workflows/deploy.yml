@@ -6,48 +6,65 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  quality-gate:
+  quality-check:
     runs-on: ubuntu-latest
+    env:
+      # Note: mongodb-memory-server usually doesn't need MONGODB_URI
+      # as it generates its own, but keeping for your app logic
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      # Force the memory server to use the cached path
+      MONGOMS_DOWNLOAD_DIR: ~/.cache/mongodb-binaries
     steps:
       - uses: actions/checkout@v6
+
       - name: Install pnpm
         uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 25
           cache: "pnpm"
-      - name: Cache MongoDB Binary
+
+      - name: Cache MongoDB binary
         uses: actions/cache@v4
         with:
           path: ~/.cache/mongodb-binaries
           key: ${{ runner.os }}-mongodb-${{ hashFiles('**/package.json') }}
+
       - name: Install dependencies
         run: pnpm install
-      - name: Lint and Format
+
+      - name: Lint and Format check
         run: |
           pnpm run lint
           pnpm run fmt:check
+
       - name: Install Playwright Browsers
         run: pnpx playwright install --with-deps chromium
-      - name: Run Tests
+
+      - name: Run Vitest (Unit/Integration) tests
         run: pnpm run test
-        env:
-          # Note: mongodb-memory-server usually doesn't need MONGODB_URI
-          # as it generates its own, but keeping for your app logic
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          # Force the memory server to use the cached path
-          MONGOMS_DOWNLOAD_DIR: ~/.cache/mongodb-binaries
+
+      - name: Run Playwright (E2E) tests
+        run: pnpm run e2e
 
   deploy:
-    needs: quality-gate
+    needs: quality-check
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
       - name: Deploy to Fly.io
         run: flyctl deploy --remote-only
         env:

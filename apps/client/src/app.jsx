@@ -42,12 +42,11 @@ export function App() {
 
   const login = async ({ username, password }) => {
     try {
-      const data = await loginApi.login({ username, password });
-      const loggedInUser = { username: data.username, name: data.name };
-      setUser(loggedInUser);
+      const { token, ...user } = await loginApi.login({ username, password });
+      setUser(user);
 
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
 
       return { success: true };
     } catch (error) {
@@ -90,7 +89,7 @@ export function App() {
 
     try {
       const createdNote = await notesApi.create(noteObject);
-      setNotes((prevNotes) => prevNotes.concat(createdNote));
+      setNotes((notes) => notes.concat(createdNote));
 
       notify(`Added "${content}"`);
       noteFormRef.current.toggleVisibility();
@@ -109,7 +108,7 @@ export function App() {
 
     try {
       const updatedNote = await notesApi.update(id, noteObject);
-      setNotes((prevNotes) => prevNotes.map((note) => (note.id === id ? updatedNote : note)));
+      setNotes((notes) => notes.map((note) => (note.id === id ? updatedNote : note)));
     } catch {
       notify(`Note "${existingNote.content}" was already deleted from server`, {
         variant: "error",
@@ -131,11 +130,11 @@ export function App() {
         variant: "error",
       });
     } finally {
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+      setNotes((notes) => notes.filter((note) => note.id !== id));
     }
   };
 
-  const [showAll, toggleShowAll] = useReducer((prevShowAll) => !prevShowAll, true);
+  const [showAll, toggleShowAll] = useReducer((showAll) => !showAll, true);
 
   return (
     <>
@@ -174,7 +173,8 @@ export function App() {
           </>
         ) : (
           <section>
-            <Togglable openButtonLabel="Login to view notes">
+            <p>Please log in to see your notes.</p>
+            <Togglable openButtonLabel="Login">
               <h2>Login with your username</h2>
               <LoginForm onSubmit={login} />
             </Togglable>

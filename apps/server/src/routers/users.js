@@ -1,6 +1,6 @@
 import express from "express";
 
-import * as security from "../core/security.js";
+import { hashPassword } from "../core/security.js";
 import { User } from "../models/user.js";
 
 export const usersRouter = express.Router();
@@ -15,7 +15,7 @@ usersRouter.post("/", async (req, res) => {
     });
   }
 
-  const passwordHash = await security.hashPassword(password);
+  const passwordHash = await hashPassword(password);
   const user = await User.create({ username, name, passwordHash });
 
   res.status(201).json(user);

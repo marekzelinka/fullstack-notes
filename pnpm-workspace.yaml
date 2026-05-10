@@ -1,8 +1,9 @@
 packages:
-  - apps/*
-  - packages/*
+  - "apps/*"
+
 catalog:
-  "@types/node": "^25.6.0"
+  "@types/node": "^25.6.2"
+
 allowBuilds:
   bcrypt: true
   mongodb-memory-server: true

@@ -2,10 +2,15 @@ import supertest from "supertest";
 import { beforeEach, describe, test, expect } from "vitest";
 
 import { app } from "../src/app.js";
-import * as security from "../src/core/security.js";
+import { hashPassword, createAccessToken } from "../src/core/security.js";
 import { Note } from "../src/models/note.js";
 import { User } from "../src/models/user.js";
-import * as apiTestUtils from "./api-test-utils.js";
+import {
+  initialUser,
+  getInitialNotes,
+  getNotesInDb,
+  getValidNonExistingNoteId,
+} from "./api-test-utils.js";
 
 const api = supertest(app);
 
@@ -15,17 +20,17 @@ describe("when there are initially some notes seeded with a owner", () => {
   let userNotes;
 
   beforeEach(async () => {
-    const passwordHash = await security.hashPassword(apiTestUtils.initialUser.password);
+    const passwordHash = await hashPassword(initialUser.password);
     user = await User.create({
-      username: apiTestUtils.initialUser.username,
-      name: apiTestUtils.initialUser.name,
+      username: initialUser.username,
+      name: initialUser.name,
       passwordHash,
     });
 
-    const token = security.createAccessToken({ sub: user.username });
+    const token = createAccessToken({ sub: user.username });
     authHeader = { Authorization: `Bearer ${token}` };
 
-    userNotes = apiTestUtils.getInitialNotes(user._id);
+    userNotes = getInitialNotes(user._id);
     const notes = await Note.insertMany(userNotes);
 
     // Link seeded notes back to the user
@@ -42,13 +47,13 @@ describe("when there are initially some notes seeded with a owner", () => {
       expect(res.status).toBe(201);
       expect(res.headers["content-type"]).toMatch(/json/);
 
-      const notesAtEnd = await apiTestUtils.getNotesInDb();
+      const notesAtEnd = await getNotesInDb();
       expect(notesAtEnd).toHaveLength(userNotes.length + 1);
 
       const contents = notesAtEnd.map((note) => note.content);
       expect(contents).toContain(newNote.content);
 
-      const userInDb = await User.findOne({ username: apiTestUtils.initialUser.username });
+      const userInDb = await User.findOne({ username: initialUser.username });
       const userNoteIds = userInDb.notes.map((id) => id.toString());
       expect(userNoteIds).toContain(res.body.id);
     });
@@ -67,18 +72,13 @@ describe("when there are initially some notes seeded with a owner", () => {
       [{ content: "lol" }, /content must be at least 5 characters long/i],
     ])(
       "fails with status 400 when data (%i) is invalid, returning error (%i)",
-      async (
-        [data, error],
-        {
-          expect, // oxlint-disable-line no-shadow
-        },
-      ) => {
+      async ([data, error], { expect }) => {
         const res = await api.post("/api/notes").set(authHeader).send(data);
         expect(res.status).toBe(400);
         expect(res.headers["content-type"]).toMatch(/json/);
         expect(res.body.error).toMatch(error);
 
-        const notesAtEnd = await apiTestUtils.getNotesInDb();
+        const notesAtEnd = await getNotesInDb();
         expect(notesAtEnd).toHaveLength(userNotes.length);
       },
     );
@@ -118,7 +118,7 @@ describe("when there are initially some notes seeded with a owner", () => {
 
     describe("viewing a specific note", () => {
       test("succeeds when owned by user", async () => {
-        const notesAtStart = await apiTestUtils.getNotesInDb();
+        const notesAtStart = await getNotesInDb();
         const noteToView = notesAtStart[0];
 
         const res = await api.get(`/api/notes/${noteToView.id}`).set(authHeader);
@@ -137,7 +137,7 @@ describe("when there are initially some notes seeded with a owner", () => {
       });
 
       test("fails with status 401 if auth header is missing", async () => {
-        const notesAtStart = await apiTestUtils.getNotesInDb();
+        const notesAtStart = await getNotesInDb();
         const noteToView = notesAtStart[0];
 
         const res = await api.get(`/api/notes/${noteToView.id}`);
@@ -147,12 +147,12 @@ describe("when there are initially some notes seeded with a owner", () => {
       });
 
       test("fails with status 404 if trying to view someone else's note", async () => {
-        const notesAtStart = await apiTestUtils.getNotesInDb();
+        const notesAtStart = await getNotesInDb();
         const noteToView = notesAtStart[0];
 
         const otherUser = await User.create({ username: "hacker", passwordHash: "..." });
         const otherHeader = {
-          Authorization: `Bearer ${security.createAccessToken({ sub: otherUser.username })}`,
+          Authorization: `Bearer ${createAccessToken({ sub: otherUser.username })}`,
         };
 
         const res = await api.get(`/api/notes/${noteToView.id}`).set(otherHeader);
@@ -162,7 +162,7 @@ describe("when there are initially some notes seeded with a owner", () => {
       });
 
       test("fails with status 404 if note does not exist", async () => {
-        const validNonexistingId = await apiTestUtils.getValidNonExistingNoteId(user._id);
+        const validNonexistingId = await getValidNonExistingNoteId(user._id);
 
         const res = await api.get(`/api/notes/${validNonexistingId}`).set(authHeader);
         expect(res.status).toBe(404);
@@ -174,7 +174,7 @@ describe("when there are initially some notes seeded with a owner", () => {
 
   describe("update of a note", () => {
     test("succeeds when owned by the user", async () => {
-      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const notesAtStart = await getNotesInDb();
       const noteToEdit = notesAtStart[0];
       const updatedData = { content: "Updated by owner", important: true };
 
@@ -186,7 +186,7 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("ignores attempts to change the immutable owner", async () => {
-      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const notesAtStart = await getNotesInDb();
       const noteToEdit = notesAtStart[0];
 
       const otherUser = await User.create({ username: "other", passwordHash: "..." });
@@ -212,7 +212,7 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("fails with status 401 if auth header is missing", async () => {
-      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const notesAtStart = await getNotesInDb();
       const noteToEdit = notesAtStart[0];
       const updatedData = { content: "Updated by owner", important: true };
 
@@ -223,12 +223,12 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("fails with status 404 if trying to update someone else's note", async () => {
-      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const notesAtStart = await getNotesInDb();
       const noteToEdit = notesAtStart[0];
 
       const otherUser = await User.create({ username: "hacker", passwordHash: "..." });
       const otherHeader = {
-        Authorization: `Bearer ${security.createAccessToken({ sub: otherUser.username })}`,
+        Authorization: `Bearer ${createAccessToken({ sub: otherUser.username })}`,
       };
 
       const res = await api
@@ -241,7 +241,7 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("fails with status 404 if note does not exist", async () => {
-      const validNonexistingId = await apiTestUtils.getValidNonExistingNoteId(user._id);
+      const validNonexistingId = await getValidNonExistingNoteId(user._id);
 
       const res = await api
         .patch(`/api/notes/${validNonexistingId}`)
@@ -255,19 +255,19 @@ describe("when there are initially some notes seeded with a owner", () => {
 
   describe("deletion of a note", () => {
     test("succeeds when owned by user", async () => {
-      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const notesAtStart = await getNotesInDb();
       const noteToDelete = notesAtStart[0];
 
       const res = await api.delete(`/api/notes/${noteToDelete.id}`).set(authHeader);
       expect(res.status).toBe(204);
 
-      const notesAtEnd = await apiTestUtils.getNotesInDb();
+      const notesAtEnd = await getNotesInDb();
       expect(notesAtEnd).toHaveLength(userNotes.length - 1);
 
       const ids = notesAtEnd.map((note) => note.id);
       expect(ids).not.toContain(noteToDelete.id);
 
-      const userInDb = await User.findOne({ username: apiTestUtils.initialUser.username });
+      const userInDb = await User.findOne({ username: initialUser.username });
       const userNoteIds = userInDb.notes.map((id) => id.toString());
       expect(userNoteIds).not.toContain(noteToDelete.id);
     });
@@ -282,7 +282,7 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("fails with status 401 if auth header is missing", async () => {
-      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const notesAtStart = await getNotesInDb();
       const noteToDelete = notesAtStart[0];
 
       const res = await api.delete(`/api/notes/${noteToDelete.id}`);
@@ -292,12 +292,12 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("fails with status 404 if trying to delete someone else's note", async () => {
-      const notesAtStart = await apiTestUtils.getNotesInDb();
+      const notesAtStart = await getNotesInDb();
       const noteToDelete = notesAtStart[0];
 
       const otherUser = await User.create({ username: "hacker", passwordHash: "..." });
       const otherHeader = {
-        Authorization: `Bearer ${security.createAccessToken({ sub: otherUser.username })}`,
+        Authorization: `Bearer ${createAccessToken({ sub: otherUser.username })}`,
       };
 
       const res = await api.delete(`/api/notes/${noteToDelete.id}`).set(otherHeader);
@@ -307,7 +307,7 @@ describe("when there are initially some notes seeded with a owner", () => {
     });
 
     test("fails with status 404 if note does not exist", async () => {
-      const validNonexistingId = await apiTestUtils.getValidNonExistingNoteId(user._id);
+      const validNonexistingId = await getValidNonExistingNoteId(user._id);
 
       const res = await api.delete(`/api/notes/${validNonexistingId}`).set(authHeader);
       expect(res.status).toBe(404);

@@ -3,10 +3,10 @@ import { beforeEach, test, describe } from "vitest";
 import { expect } from "vitest";
 
 import { app } from "../src/app.js";
-import * as security from "../src/core/security.js";
+import { hashPassword } from "../src/core/security.js";
 import { Note } from "../src/models/note.js";
 import { User } from "../src/models/user.js";
-import * as apiTestUtils from "./api-test-utils.js";
+import { initialUser, getInitialNotes, getUsersInDb } from "./api-test-utils.js";
 
 const api = supertest(app);
 
@@ -17,14 +17,14 @@ describe("when there is initially an user seeded with some notes", () => {
     // Important: ensure the unique index is synced for the 'already taken' test
     await User.syncIndexes();
 
-    const passwordHash = await security.hashPassword(apiTestUtils.initialUser.password);
+    const passwordHash = await hashPassword(initialUser.password);
     const user = await User.create({
-      username: apiTestUtils.initialUser.username,
-      name: apiTestUtils.initialUser.name,
+      username: initialUser.username,
+      name: initialUser.name,
       passwordHash,
     });
 
-    seededUserNotes = apiTestUtils.getInitialNotes(user._id);
+    seededUserNotes = getInitialNotes(user._id);
     const notes = await Note.insertMany(seededUserNotes);
 
     // Link seeded notes back to the user
@@ -35,7 +35,7 @@ describe("when there is initially an user seeded with some notes", () => {
 
   describe("creation of a new user", () => {
     test("succeeds with fresh usernmae", async () => {
-      const usersAtStart = await apiTestUtils.getUsersInDb();
+      const usersAtStart = await getUsersInDb();
 
       const newUser = {
         username: "mzelinka",
@@ -49,7 +49,7 @@ describe("when there is initially an user seeded with some notes", () => {
       expect(res.body.username).toBe(newUser.username);
       expect(res.body).not.toHaveProperty("passwordHash");
 
-      const usersAtEnd = await apiTestUtils.getUsersInDb();
+      const usersAtEnd = await getUsersInDb();
       expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
 
       const usernames = usersAtEnd.map((user) => user.username);
@@ -57,7 +57,7 @@ describe("when there is initially an user seeded with some notes", () => {
     });
 
     test("fails with status 400 when password is too short", async () => {
-      const usersAtStart = await apiTestUtils.getUsersInDb();
+      const usersAtStart = await getUsersInDb();
 
       const newUser = { username: "mzelinka", name: "Marek Zelinka", password: "sekret" };
 
@@ -66,7 +66,7 @@ describe("when there is initially an user seeded with some notes", () => {
       expect(res.headers["content-type"]).toMatch(/json/);
       expect(res.body.error).toMatch(/password must be at least 8 characters long/i);
 
-      const usersAtEnd = await apiTestUtils.getUsersInDb();
+      const usersAtEnd = await getUsersInDb();
       expect(usersAtEnd).toHaveLength(usersAtStart.length);
 
       const usernames = usersAtEnd.map((user) => user.username);
@@ -74,7 +74,7 @@ describe("when there is initially an user seeded with some notes", () => {
     });
 
     test("fails with status 400 when username is already taken", async () => {
-      const usersAtStart = await apiTestUtils.getUsersInDb();
+      const usersAtStart = await getUsersInDb();
 
       const newUser = { username: "root", name: "Marek Yelinka", password: "securepassword123" };
 
@@ -83,7 +83,7 @@ describe("when there is initially an user seeded with some notes", () => {
       expect(res.headers["content-type"]).toMatch(/json/);
       expect(res.body.error).toMatch(/username must be unique/i);
 
-      const usersAtEnd = await apiTestUtils.getUsersInDb();
+      const usersAtEnd = await getUsersInDb();
       expect(usersAtEnd).toHaveLength(usersAtStart.length);
     });
   });

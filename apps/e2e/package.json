@@ -1,0 +1,13 @@
+{
+  "name": "e2e",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "catalog:",
+    "eslint-plugin-playwright": "^2.10.2"
+  }
+}

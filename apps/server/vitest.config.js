@@ -4,11 +4,10 @@ export default defineProject({
   test: {
     name: "server",
     environment: "node",
-    setupFiles: ["./mongodb-memory-server.setup.js", "./env.setup.js"],
-    isolate: false,
-    maxWorkers: 1,
-    sequence: {
-      groupOrder: 0,
+    setupFiles: ["./vitest.setup.js"],
+    env: {
+      NODE_ENV: "test",
+      SECRET_KEY: "test-secret-only-for-local-and-ci",
     },
   },
 });

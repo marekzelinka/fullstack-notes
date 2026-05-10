@@ -1,6 +1,6 @@
 import { env } from "./config.js";
 
-export function info(...params) {
+export function logInfo(...params) {
   if (env.NODE_ENV === "test") {
     return;
   }
@@ -8,7 +8,7 @@ export function info(...params) {
   console.log(...params);
 }
 
-export function error(...params) {
+export function logError(...params) {
   if (env.NODE_ENV === "test") {
     return;
   }

@@ -8,15 +8,14 @@ const userSchema = new mongoose.Schema({
     minlength: [3, "Username must be at least 3 characters long"],
     match: [/^[a-zA-Z0-9]+$/, "Username can only contain letters and numbers"],
   },
-  name: {
-    type: String,
-    trim: true,
-  },
-  passwordHash: {
-    type: String,
-    required: [true, "Password hash is required"],
-  },
-  notes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Note" }],
+  name: { type: String, trim: true },
+  passwordHash: { type: String, required: [true, "Hashed password is required"] },
+  notes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Note",
+    },
+  ],
 });
 
 userSchema.set("toJSON", {
