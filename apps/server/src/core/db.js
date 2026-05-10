@@ -1,4 +1,3 @@
-import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 
 import { env } from "./config.js";
@@ -12,6 +11,8 @@ const connectOptions = {
 
 export async function connectToDatabase() {
   if (env.NODE_ENV === "test") {
+    const { MongoMemoryServer } = await import("mongodb-memory-server");
+
     if (!mongodb) {
       mongodb = await MongoMemoryServer.create();
     }
