@@ -23,12 +23,11 @@ export default defineConfig({
   webServer: [
     {
       command: "pnpm --filter client dev",
-      // url: "http://localhost:5173",
       port: 5173,
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "pnpm --filter server dev",
+      command: "pnpm --filter server exec node src/index.js",
       port: 3001,
       env: {
         NODE_ENV: "test",
