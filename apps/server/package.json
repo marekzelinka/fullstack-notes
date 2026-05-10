@@ -2,7 +2,7 @@
   "name": "server",
   "type": "module",
   "scripts": {
-    "dev": "node --watch --env-file=.env src/index.js"
+    "dev": "node --watch --env-file-if-exists=.env src/index.js"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",
